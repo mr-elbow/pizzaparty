@@ -57,8 +57,8 @@
 
         .input-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 20px;
             margin-bottom: 40px;
         }
 
@@ -146,15 +146,15 @@
     </header>
 
     <div class="dashboard">
-        <div id="warning">⚠️ Batch limit exceeded (>1100g). Scaling ingredients into two batches for KitchenAid safety.</div>
+        <div id="warning">⚠️ KitchenAid Threshold Exceeded (>1123g). Split into two batches.</div>
         
         <div class="input-grid">
             <div class="control-group">
-                <label>Quantity (Balls)</label>
-                <input type="number" id="qty" value="4" oninput="update()">
+                <label>Quantity</label>
+                <input type="number" id="qty" value="3" oninput="update()">
             </div>
             <div class="control-group">
-                <label>Target Weight</label>
+                <label>Size (g)</label>
                 <select id="sizeSelect" onchange="update()">
                     <option value="200">200g (10")</option>
                     <option value="280">280g (12")</option>
@@ -163,11 +163,19 @@
                 </select>
             </div>
             <div class="control-group">
+                <label>Buffer/Waste</label>
+                <select id="buffer" onchange="update()">
+                    <option value="1.0">0%</option>
+                    <option value="1.05">5%</option>
+                    <option value="1.10" selected>10%</option>
+                </select>
+            </div>
+            <div class="control-group">
                 <label>Hydration (%)</label>
                 <input type="number" id="hydro" value="65" oninput="update()">
             </div>
             <div class="control-group">
-                <label>Ambient Temp (°F)</label>
+                <label>Temp (°F)</label>
                 <input type="number" id="temp" value="72" oninput="update()">
             </div>
             <div class="control-group">
@@ -226,23 +234,23 @@
         <div class="step">
             <h3>Phase 2: Structural Development <span class="timestamp" id="t2"></span></h3>
             <div id="methodText"></div>
-            <p>Ensure a <span class="highlight">Target Finished Dough Temperature of 75°F - 78°F</span>. This range is the "sweet spot" where fermentation activity remains vigorous but the gluten doesn't degrade prematurely.</p>
+            <p>Aim for a <span class="highlight">Finished Dough Temperature of 75°F - 78°F</span>. This range ensures optimal yeast performance without risking gluten breakdown from overheating.</p>
         </div>
 
         <div class="step">
             <h3>Phase 3: Bulk & Strengthening <span class="timestamp" id="t3"></span></h3>
-            <p>Perform three sets of stretch-and-folds during the first 2 hours. This aligns the gluten network and traps the CO2 produced by the wild yeast.</p>
+            <p>Perform three sets of stretch-and-folds during the first 2 hours. This creates a vertical gluten structure and helps evenly distribute the thermal energy across the dough mass.</p>
             <div class="note" id="timingNote"></div>
         </div>
 
         <div class="step">
             <h3>Phase 4: Partitioning & Cold Ferment <span class="timestamp" id="t4"></span></h3>
-            <p>Once bulk is complete, divide into your target weights. Tension the rounds into smooth, tight balls. Cold ferment in the refrigerator for <span class="highlight">24–72 hours</span>.</p>
+            <p>Once bulk fermentation is complete, divide the dough into your target rounds. Create tension by dragging the rounds against an un-floured surface. Store in the fridge for <span class="highlight">24–72 hours</span>.</p>
         </div>
 
         <div class="step">
             <h3>Phase 5: Tempering & Bake</h3>
-            <p>Tempering the dough at room temperature is non-negotiable. Stretching cold dough causes "snap-back" and results in a denser crust.</p>
+            <p>Tempering is crucial. Stretching a cold dough "shocks" the gluten, leading to snap-back and a rubbery cornicione.</p>
             <div class="note" id="fridgeNote"></div>
         </div>
     </section>
@@ -261,23 +269,26 @@ function update() {
     const sliderVal = parseInt(document.getElementById('timeSlider').value);
     const qty = parseFloat(document.getElementById('qty').value) || 0;
     const size = parseFloat(document.getElementById('sizeSelect').value) || 340;
+    const bufferMult = parseFloat(document.getElementById('buffer').value) || 1.10;
     const hydro = (parseFloat(document.getElementById('hydro').value) || 65) / 100;
     const temp = parseFloat(document.getElementById('temp').value) || 72;
     const method = document.getElementById('mixMethod').value;
 
     document.getElementById('clockDisplay').innerText = getTimeFromMins(sliderVal);
 
-    // More conservative batching: 1100g limit for standard home mixers
-    const totalDough = (qty * size) * 1.10;
-    const isOver = totalDough > 1100;
+    // Calculate Total Dough with selected Buffer
+    const totalDough = (qty * size) * bufferMult;
+    
+    // Updated KitchenAid Threshold: 1123g
+    const isOver = totalDough > 1123;
     document.getElementById('warning').style.display = isOver ? 'block' : 'none';
     document.getElementById('batchHead').style.display = isOver ? 'table-cell' : 'none';
 
-    // Math Engine
+    // Calculation constants
     const totalFlour = totalDough / (1 + hydro + 0.28); 
     const levainTotal = totalFlour * 0.25;
 
-    // Levain Build (1:2:2 ratio approx)
+    // Levain Ingredients
     const lStarter = (levainTotal * 0.20).toFixed(0);
     const lFlour = (levainTotal * 0.40).toFixed(0);
     const lWater = (levainTotal * 0.40).toFixed(0);
@@ -285,10 +296,10 @@ function update() {
     document.getElementById('levainBody').innerHTML = `
         <tr><td><strong>Sourdough Starter</strong> (Mature)</td><td class="val">${lStarter}g</td></tr>
         <tr><td><strong>Bread Flour</strong></td><td class="val">${lFlour}g</td></tr>
-        <tr><td><strong>Water</strong> (Approx 90°F)</td><td class="val">${lWater}g</td></tr>
+        <tr><td><strong>Water</strong> (90°F)</td><td class="val">${lWater}g</td></tr>
     `;
 
-    // Dough Formula
+    // Dough Ingredients
     const f00 = (totalFlour * 0.90).toFixed(0);
     const fWW = (totalFlour * 0.10).toFixed(0);
     const waterInitial = ((totalFlour * hydro) - 50).toFixed(0);
@@ -311,18 +322,17 @@ function update() {
     });
     document.getElementById('doughBody').innerHTML = html;
 
-    // Prose Updates
-    document.getElementById('levainProse').innerHTML = `In a small jar, combine your <strong>Sourdough Starter</strong> (${lStarter}g), <strong>Bread Flour</strong> (${lFlour}g), and <strong>Water</strong> (${lWater}g). Stir until smooth and cover. At ${temp}°F, this should reach peak activity in approximately 5 hours. Look for the dome to be slightly rounded and full of bubbles.`;
+    // Recipe Step Text
+    document.getElementById('levainProse').innerHTML = `Mix <strong>Sourdough Starter</strong> (${lStarter}g), <strong>Bread Flour</strong> (${lFlour}g), and <strong>Water</strong> (${lWater}g). Cover and let rest. At ${temp}°F, the levain should peak in 5 hours.`;
+    document.getElementById('autolyseText').innerHTML = `Combine <strong>"00" Pizza Flour</strong> (${f00}g), <strong>Whole Wheat Flour</strong> (${fWW}g), and <strong>Active Levain</strong> (${levainTotal.toFixed(0)}g) with <strong>Initial Water</strong> (${waterInitial}g). Let rest for 20 minutes.`;
     
-    document.getElementById('autolyseText').innerHTML = `In your mixing bowl, combine the <strong>"00" Pizza Flour</strong> (${f00}g), <strong>Whole Wheat Flour</strong> (${fWW}g), and your mature <strong>Active Levain</strong> (${levainTotal.toFixed(0)}g) with the <strong>Initial Water</strong> (${waterInitial}g). Mix until a shaggy mass forms. Rest for 20 minutes.`;
-
     document.getElementById('methodText').innerHTML = method === 'kitchenaid' ? 
-        `<p>Add the <strong>Fine Sea Salt</strong> (${salt}g) and <strong>Reserved Water</strong> (${waterRes}g). Using the hook, mix on <span class="highlight">Speed 1</span> for 2 minutes to incorporate. Increase to <span class="highlight">Speed 2</span> and mix for 4–5 minutes until the dough clears the sides. ${isOver ? '<strong>Process in two separate batches to avoid mixer strain.</strong>' : ''}</p>` :
-        `<p>Incorporate the <strong>Fine Sea Salt</strong> (${salt}g) and <strong>Reserved Water</strong> (${waterRes}g) by hand. Perform slap-and-folds for <span class="highlight">8 minutes</span> until the dough passes the windowpane test.</p>`;
+        `<p>Add <strong>Fine Sea Salt</strong> (${salt}g) and <strong>Reserved Water</strong> (50g). Mix on Speed 1 for 2 mins, then Speed 2 for 4-5 mins. ${isOver ? '<strong>Process in two batches to avoid motor strain.</strong>' : ''}</p>` :
+        `<p>Hand-mix <strong>Fine Sea Salt</strong> (${salt}g) and <strong>Reserved Water</strong> (50g). Perform slap-and-folds for 8 minutes.</p>`;
 
-    // Timing Math
+    // Timeline Math
     const rawHours = 4 * Math.pow(2, (75 - temp) / 12);
-    const mainStartMins = sliderVal + 300; // 5 hour levain lead
+    const mainStartMins = sliderVal + 300; 
     const totalMins = Math.round(rawHours * 60);
     const temperHours = 2 * Math.pow(1.1, (72 - temp) / 2);
 
@@ -332,8 +342,8 @@ function update() {
     document.getElementById('t3').innerText = `Folds // ${getTimeFromMins(mainStartMins + 65)}, ${getTimeFromMins(mainStartMins + 110)}, ${getTimeFromMins(mainStartMins + 155)}`;
     document.getElementById('t4').innerText = `Shape // ${getTimeFromMins(mainStartMins + totalMins)}`;
 
-    document.getElementById('timingNote').innerText = `Based on your ${temp}°F ambient temp, the bulk fermentation phase should conclude in roughly ${Math.floor(rawHours)}h ${Math.round((rawHours % 1) * 60)}m.`;
-    document.getElementById('fridgeNote').innerText = `Temper the dough for ${Math.floor(temperHours)}h ${Math.round((temperHours % 1) * 60)}m before stretching.`;
+    document.getElementById('timingNote').innerText = `At ${temp}°F, bulk fermentation requires approximately ${Math.floor(rawHours)}h ${Math.round((rawHours % 1) * 60)}m.`;
+    document.getElementById('fridgeNote').innerText = `Suggested Tempering: Remove from fridge ${Math.floor(temperHours)}h ${Math.round((temperHours % 1) * 60)}m before baking.`;
 }
 
 update();
