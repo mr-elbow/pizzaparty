@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GOOF PIZZA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>GOOF PIZZA // Sourdough Logic</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,700;1,300&family=Bangers&display=swap');
 
@@ -145,7 +146,7 @@
     </header>
 
     <div class="dashboard">
-        <div id="warning">⚠️ KitchenAid Capacity Exceeded: Batch Scaling Applied</div>
+        <div id="warning">⚠️ Batch threshold reached (>1100g). Split dough into two batches for KitchenAid safety.</div>
         
         <div class="input-grid">
             <div class="control-group">
@@ -172,25 +173,35 @@
             <div class="control-group">
                 <label>Method</label>
                 <select id="mixMethod" onchange="update()">
-                    <option value="kitchenaid">KitchenAid</option>
+                    <option value="kitchenaid" selected>KitchenAid</option>
                     <option value="hand">Hand Mix</option>
                 </select>
             </div>
         </div>
 
         <div class="slider-section">
-            <label>Autolyse Start Time</label>
-            <div class="time-display" id="clockDisplay">09:00 AM</div>
-            <input type="range" id="timeSlider" class="time-scrubber" min="0" max="1425" step="15" value="540" oninput="update()">
+            <label>Levain Start Time</label>
+            <div class="time-display" id="clockDisplay">08:00 AM</div>
+            <input type="range" id="timeSlider" class="time-scrubber" min="0" max="1425" step="15" value="480" oninput="update()">
         </div>
     </div>
 
     <section>
-        <h2>01 / The Formula</h2>
+        <h2>01 / Ingredients</h2>
         <table class="recipe-table">
             <thead>
                 <tr>
-                    <th>Component</th>
+                    <th>Levain Component</th>
+                    <th style="text-align: right;">Weight</th>
+                </tr>
+            </thead>
+            <tbody id="levainBody"></tbody>
+        </table>
+
+        <table class="recipe-table">
+            <thead>
+                <tr>
+                    <th>Dough Component</th>
                     <th style="text-align: right;">Total Weight</th>
                     <th id="batchHead" style="text-align: right; display: none;">Batch (1/2)</th>
                 </tr>
@@ -200,33 +211,33 @@
     </section>
 
     <section class="prose">
-        <h2>02 / Methodical Execution</h2>
+        <h2>02 / Recipe</h2>
 
         <div class="step">
-            <h3>Autolyse & Initial Hydration <span class="timestamp" id="t1"></span></h3>
+            <h3>Phase 0: Levain Incubation <span class="timestamp" id="t0"></span></h3>
+            <p id="levainProse"></p>
+        </div>
+
+        <div class="step">
+            <h3>Phase 1: Autolyse <span class="timestamp" id="t1"></span></h3>
             <p id="autolyseText"></p>
         </div>
 
         <div class="step">
-            <h3>Structural Development <span class="timestamp" id="t2"></span></h3>
+            <h3>Phase 2: Structural Development <span class="timestamp" id="t2"></span></h3>
             <div id="methodText"></div>
-            <p>Ensure your final dough hits a <span class="highlight">Target Finished Temperature of 75°F - 78°F</span>. Use your ambient room temperature as a guide; if the air is cold, increase the water temperature slightly to maintain a healthy fermentation cycle.</p>
+            <p>Target a <span class="highlight">Finished Dough Temperature of 75°F - 78°C</span>. This creates a stable environment for the fermentation microbes to thrive.</p>
         </div>
 
         <div class="step">
-            <h3>Bulk Fermentation & Strengthening <span class="timestamp" id="t3"></span></h3>
-            <p>During the first two hours, perform three sets of stretch-and-folds. Pull the dough upward until you feel tension and fold it over itself. Repeat this for all four sides. This builds the vertical strength required for a high-domed, airy crust.</p>
+            <h3>Phase 3: Bulk & Strengthening <span class="timestamp" id="t3"></span></h3>
+            <p>Perform three sets of stretch-and-folds during the first 2 hours. This aligns the gluten and traps CO2.</p>
             <div class="note" id="timingNote"></div>
         </div>
 
         <div class="step">
-            <h3>Partitioning & Cold Ferment <span class="timestamp" id="t4"></span></h3>
-            <p>Once the bulk period concludes, gently tip the dough onto a work surface. Shape into tight, smooth rounds by dragging the dough against the counter to create surface tension. Transfer to oiled containers and refrigerate for <span class="highlight">24–72 hours</span>.</p>
-        </div>
-
-        <div class="step">
-            <h3>The Tempering & Bake</h3>
-            <p id="bakeText"></p>
+            <h3>Phase 4: Tempering & Bake</h3>
+            <p>Remove the dough from the fridge to temper. Stretching cold dough causes "snap-back" and prevents a light, open structure.</p>
             <div class="note" id="fridgeNote"></div>
         </div>
     </section>
@@ -252,27 +263,37 @@ function update() {
     document.getElementById('clockDisplay').innerText = getTimeFromMins(sliderVal);
 
     const totalDough = (qty * size) * 1.10;
-    const isOver = totalDough > 2500;
+    const isOver = totalDough > 1100;
     document.getElementById('warning').style.display = isOver ? 'block' : 'none';
     document.getElementById('batchHead').style.display = isOver ? 'table-cell' : 'none';
 
     const totalFlour = totalDough / (1 + hydro + 0.28); 
-    
-    // Ingredients
+    const levainTotal = totalFlour * 0.25;
+
+    // Levain
+    const lStarter = (levainTotal * 0.20).toFixed(0);
+    const lFlour = (levainTotal * 0.40).toFixed(0);
+    const lWater = (levainTotal * 0.40).toFixed(0);
+
+    document.getElementById('levainBody').innerHTML = `
+        <tr><td><strong>Sourdough Starter</strong> (Mature)</td><td class="val">${lStarter}g</td></tr>
+        <tr><td><strong>Bread Flour</strong></td><td class="val">${lFlour}g</td></tr>
+        <tr><td><strong>Water</strong> (90°F)</td><td class="val">${lWater}g</td></tr>
+    `;
+
+    // Dough
     const f00 = (totalFlour * 0.90).toFixed(0);
     const fWW = (totalFlour * 0.10).toFixed(0);
     const waterInitial = ((totalFlour * hydro) - 50).toFixed(0);
-    const activeLevain = (totalFlour * 0.25).toFixed(0);
     const salt = (totalFlour * 0.03).toFixed(0);
-    const waterRes = "50";
 
     const ingredients = [
         { name: '<strong>"00" Pizza Flour</strong> (90%)', val: f00 },
         { name: '<strong>Whole Wheat Flour</strong> (10%)', val: fWW },
         { name: '<strong>Initial Water</strong> (Autolyse)', val: waterInitial },
-        { name: '<strong>Active Levain</strong>', val: activeLevain },
+        { name: '<strong>Active Levain</strong> (From Phase 0)', val: levainTotal.toFixed(0) },
         { name: '<strong>Fine Sea Salt</strong> (3%)', val: salt },
-        { name: '<strong>Reserved Water</strong> (Final Mix)', val: waterRes }
+        { name: '<strong>Reserved Water</strong> (Final Mix)', val: "50" }
     ];
 
     let html = "";
@@ -282,34 +303,25 @@ function update() {
     });
     document.getElementById('doughBody').innerHTML = html;
 
-    // Prose Updates with formatting
-    document.getElementById('autolyseText').innerHTML = `Combine <strong>"00" Pizza Flour</strong> (${f00}g), <strong>Whole Wheat Flour</strong> (${fWW}g), and <strong>Active Levain</strong> (${activeLevain}g) with the <strong>Initial Water</strong> (${waterInitial}g). Mix until no dry flour remains. Allow this shaggy mass to rest for 20 minutes to improve extensibility.`;
-
+    // Prose
+    document.getElementById('levainProse').innerHTML = `In a clean jar, combine <strong>Sourdough Starter</strong> (${lStarter}g), <strong>Bread Flour</strong> (${lFlour}g), and <strong>Water</strong> (${lWater}g). Stir until no dry clumps remain. Cover loosely and store in a warm spot until doubled in volume and bubbly.`;
+    document.getElementById('autolyseText').innerHTML = `Mix <strong>"00" Pizza Flour</strong> (${f00}g), <strong>Whole Wheat Flour</strong> (${fWW}g), and your mature <strong>Active Levain</strong> (${levainTotal.toFixed(0)}g) with the <strong>Initial Water</strong> (${waterInitial}g). Let rest for 20 minutes.`;
     document.getElementById('methodText').innerHTML = method === 'kitchenaid' ? 
-        `<p>Using the dough hook, add <strong>Fine Sea Salt</strong> (${salt}g) and <strong>Reserved Water</strong> (${waterRes}g) to the bowl. Mix on <span class="highlight">Speed 1</span> for 2 minutes to incorporate. Increase to <span class="highlight">Speed 2</span> and mix for 4–5 minutes until the dough clears the bowl.</p>` :
-        `<p>Incorporate <strong>Fine Sea Salt</strong> (${salt}g) and <strong>Reserved Water</strong> (${waterRes}g) using the pincet method. Transfer to the counter and perform slap-and-folds for <span class="highlight">8 minutes</span> until the dough is smooth and resilient.</p>`;
+        `<p>Using the hook, add <strong>Fine Sea Salt</strong> (${salt}g) and <strong>Reserved Water</strong> (50g). Speed 1 for 2 mins, then Speed 2 for 4 mins. ${isOver ? '<strong>Reminder: Process in two separate batches.</strong>' : ''}</p>` :
+        `<p>Work in <strong>Fine Sea Salt</strong> (${salt}g) and <strong>Reserved Water</strong> (50g) by hand. Slap-and-fold for 8 mins.</p>`;
 
-    document.getElementById('bakeText').innerHTML = `On bake day, remove your dough from the refrigerator and allow it to sit covered at room temperature. This releases the tension in the cold fats and proteins, making it easier to stretch without tearing. Stretching cold dough results in a denser, less airy "cornicione."`;
-
-    // Thermodynamic Timing
+    // Timing
     const rawHours = 4 * Math.pow(2, (75 - temp) / 12);
-    const h = Math.floor(rawHours);
-    const m = Math.round((rawHours - h) * 60);
-    const totalMins = Math.round(rawHours * 60);
-
-    // Tempering Logic (Suggested time to remove from fridge)
-    // Formula: Cooler rooms need more time. Target ~2 hours at 72F.
+    const mainStartMins = sliderVal + 300; 
     const temperHours = 2 * Math.pow(1.1, (72 - temp) / 2);
-    const tH = Math.floor(temperHours);
-    const tM = Math.round((temperHours - tH) * 60);
-    
-    document.getElementById('t1').innerText = `Start // ${getTimeFromMins(sliderVal)}`;
-    document.getElementById('t2').innerText = `Mix // ${getTimeFromMins(sliderVal + 20)}`;
-    document.getElementById('t3').innerText = `Folds // ${getTimeFromMins(sliderVal + 65)}, ${getTimeFromMins(sliderVal + 110)}, ${getTimeFromMins(sliderVal + 155)}`;
-    document.getElementById('t4').innerText = `Shape // ${getTimeFromMins(sliderVal + totalMins)}`;
 
-    document.getElementById('timingNote').innerText = `At ${temp}°F, the culture requires approximately ${h} hours and ${m} minutes to reach ideal bulk volume.`;
-    document.getElementById('fridgeNote').innerText = `Suggested Tempering: Based on your ${temp}°F ambient temperature, remove dough from the fridge ${tH} hours and ${tM} minutes before stretching.`;
+    document.getElementById('t0').innerText = `Start // ${getTimeFromMins(sliderVal)}`;
+    document.getElementById('t1').innerText = `Autolyse // ${getTimeFromMins(mainStartMins)}`;
+    document.getElementById('t2').innerText = `Mix // ${getTimeFromMins(mainStartMins + 20)}`;
+    document.getElementById('t3').innerText = `Folds // ${getTimeFromMins(mainStartMins + 65)}, ${getTimeFromMins(mainStartMins + 110)}, ${getTimeFromMins(mainStartMins + 155)}`;
+
+    document.getElementById('timingNote').innerText = `Target Bulk: ${Math.floor(rawHours)}h ${Math.round((rawHours % 1) * 60)}m.`;
+    document.getElementById('fridgeNote').innerText = `Temper dough for ${Math.floor(temperHours)}h ${Math.round((temperHours % 1) * 60)}m before stretching.`;
 }
 
 update();
