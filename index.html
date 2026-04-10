@@ -6,77 +6,68 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>PIZZA PARTY // Sourdough Logic</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
 
         :root {
-            --bg: #080809;
-            --surface: #111113;
-            --surface-raised: #1c1c1f;
-            --accent: #ff6000;
-            --text-main: #f0f0f2;
-            --text-muted: #8d8d94;
-            --border: #2a2a2e;
+            --bg: #0d0d0d;
+            --surface: #161616;
+            --accent: #ff5a00;
+            --text-main: #f2f2f2;
+            --text-muted: #777;
+            --border: #262626;
             --success: #00ff9d;
-            --warning: #ffc400;
-            --radius-md: 8px;
-            --radius-sm: 4px;
+            --warning: #ffb400;
         }
 
         body { 
-            font-family: 'DM Sans', sans-serif;
+            font-family: 'Comic Neue', sans-serif; 
             background-color: var(--bg); 
             color: var(--text-main); 
-            line-height: 1.6;
+            line-height: 1.8;
             margin: 0; 
             padding: 40px 20px; 
-            letter-spacing: -0.01em;
         }
 
-        .container { max-width: 900px; margin: auto; }
+        .container { max-width: 950px; margin: auto; }
 
-        header { text-align: center; margin-bottom: 60px; }
-        
+        header { text-align: center; margin-bottom: 50px; }
         h1 { 
-            font-family: "Comic Sans MS", "Comic Sans", cursive;
-            font-size: 5rem; 
+            font-size: 6rem; 
             color: var(--accent); 
             margin: 0;
-            line-height: 0.9;
-            text-transform: uppercase;
+            letter-spacing: 2px;
+            line-height: 1;
         }
-        
         .subtitle { 
             text-transform: uppercase; 
             letter-spacing: 5px; 
             font-size: 0.85rem; 
             color: var(--text-muted); 
-            margin-top: 10px;
-            font-weight: 500;
+            margin-top: 5px;
         }
 
         .dashboard {
             background: var(--surface);
             padding: 40px;
             border: 1px solid var(--border);
-            border-radius: var(--radius-md);
+            border-radius: 8px;
             margin-bottom: 60px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
         .input-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 25px;
+            gap: 20px;
             margin-bottom: 40px;
         }
 
         .control-group { display: flex; flex-direction: column; position: relative; }
-        label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; color: var(--accent); }
+        label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; color: var(--accent); }
         
         select, input[type="number"] { 
-            padding: 14px 16px; 
+            font-family: 'Comic Neue', sans-serif;
+            padding: 12px; 
             border: 1px solid var(--border); 
-            border-radius: var(--radius-sm);
             background: #000;
             color: white;
             font-size: 1rem;
@@ -86,7 +77,7 @@
         .batch-note {
             font-size: 0.65rem;
             color: var(--warning);
-            margin-top: 10px;
+            margin-top: 8px;
             text-transform: uppercase;
             font-weight: 700;
             display: none;
@@ -94,81 +85,53 @@
 
         .slider-section {
             border-top: 1px solid var(--border);
-            padding-top: 35px;
+            padding-top: 30px;
             text-align: center;
         }
-        
         .time-scrubber {
             -webkit-appearance: none;
             width: 100%;
-            height: 4px;
+            height: 6px;
             background: var(--border);
             outline: none;
-            margin: 25px 0;
-            border-radius: 4px;
+            margin: 20px 0;
+            border-radius: 10px;
         }
-        
         .time-scrubber::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 22px;
-            height: 22px;
+            width: 24px;
+            height: 24px;
             background: var(--accent);
             cursor: pointer;
             border-radius: 50%;
-            border: 4px solid var(--bg);
+            border: 3px solid var(--bg);
         }
+        .time-display { font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 5px; }
 
-        .time-display { font-size: 1.7rem; font-weight: 800; color: #fff; margin-bottom: 5px; }
-
-        h2 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 4px; color: var(--text-muted); border-bottom: 1px solid var(--border); padding-bottom: 18px; margin-top: 60px; font-weight: 600; }
+        h2 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 4px; color: var(--text-muted); border-bottom: 1px solid var(--border); padding-bottom: 15px; margin-top: 60px; }
         
-        .recipe-table { 
-            width: 100%; 
-            border-collapse: separate; 
-            border-spacing: 0; 
-            margin: 30px 0; 
-        }
-        
-        .recipe-table th { 
-            text-align: left; 
-            font-size: 0.65rem; 
-            text-transform: uppercase; 
-            color: var(--text-muted); 
-            padding: 12px 16px; 
-            border-bottom: 2px solid var(--border);
-        }
-        
-        .recipe-table td { 
-            padding: 18px 16px; 
-            border-bottom: 1px solid var(--border); 
-        }
-        
+        .recipe-table { width: 100%; border-collapse: collapse; margin: 30px 0; font-size: 1.05rem; }
+        .recipe-table th { text-align: left; font-size: 0.6rem; text-transform: uppercase; color: var(--text-muted); padding-bottom: 10px; border-bottom: 2px solid var(--border); }
+        .recipe-table td { padding: 20px 0; border-bottom: 1px solid var(--border); font-weight: 300; }
         .val { text-align: right; font-weight: 700; color: var(--accent); }
         .batch-val { text-align: right; color: var(--success); font-weight: 700; }
 
-        .step { margin-bottom: 50px; }
-        .step h3 { font-size: 1.15rem; font-weight: 700; color: #fff; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
-        
-        .timestamp { 
-            font-family: 'JetBrains Mono', monospace; 
-            font-size: 0.8rem; 
-            color: var(--success); 
-            background: rgba(0, 255, 157, 0.08);
-            padding: 4px 10px;
-            border-radius: var(--radius-sm);
-        }
-        
-        .prose p { color: #d1d1d6; font-size: 0.95rem; }
+        .prose { margin-top: 50px; }
+        .step { margin-bottom: 45px; }
+        .step h3 { font-size: 1.2rem; font-weight: 700; color: #fff; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+        .timestamp { font-family: monospace; font-size: 0.9rem; color: var(--success); }
+        .prose p { color: #b0b0b0; font-weight: 300; max-width: 800px; }
         
         .note { 
-            background: rgba(255, 96, 0, 0.05); 
+            background: #1a1510;
             border-left: 2px solid var(--accent); 
-            padding: 20px 24px; 
-            margin: 35px 0; 
+            padding: 20px; 
+            margin: 30px 0; 
             font-style: italic; 
-            color: #e0e0e3; 
-            font-size: 0.9rem;
+            color: #d1d1d1; 
+            font-size: 0.95rem;
         }
+
         .highlight { color: #fff; font-weight: 600; }
     </style>
 </head>
@@ -176,8 +139,8 @@
 
 <div class="container">
     <header>
-        <h1>Pizza Party</h1>
-        <div class="subtitle">Sourdough Logic Engine</div>
+        <h1>PIZZA PARTY</h1>
+        <div class="subtitle">Sourdough Pizza Calculator</div>
     </header>
 
     <div class="dashboard">
@@ -196,7 +159,7 @@
                 </select>
             </div>
             <div class="control-group">
-                <label>Buffer</label>
+                <label>Buffer/Waste</label>
                 <select id="buffer" onchange="update()">
                     <option value="1.0">0%</option>
                     <option value="1.05">5%</option>
@@ -233,7 +196,7 @@
         <table class="recipe-table">
             <thead>
                 <tr>
-                    <th>Levain Phase</th>
+                    <th>Levain Build (Phase 0)</th>
                     <th style="text-align: right;">Weight</th>
                 </tr>
             </thead>
@@ -243,9 +206,9 @@
         <table class="recipe-table">
             <thead>
                 <tr>
-                    <th>Main Dough Build</th>
-                    <th style="text-align: right;">Total</th>
-                    <th id="batchHead" style="text-align: right; display: none;">Batch</th>
+                    <th>Dough Build (Main Mix)</th>
+                    <th style="text-align: right;">Total Weight</th>
+                    <th id="batchHead" style="text-align: right; display: none;">Batch (1/2)</th>
                 </tr>
             </thead>
             <tbody id="doughBody"></tbody>
@@ -254,25 +217,32 @@
 
     <section class="prose">
         <h2>02 / Recipe</h2>
+
         <div class="step">
-            <h3>Phase 0: Levain Build <span class="timestamp" id="t0"></span></h3>
+            <h3>Phase 0: Levain Incubation <span class="timestamp" id="t0"></span></h3>
             <p id="levainProse"></p>
         </div>
+
         <div class="step">
             <h3>Phase 1: Autolyse <span class="timestamp" id="t1"></span></h3>
             <p id="autolyseText"></p>
         </div>
+
         <div class="step">
-            <h3>Phase 2: Final Mix <span class="timestamp" id="t2"></span></h3>
+            <h3>Phase 2: Structural Development <span class="timestamp" id="t2"></span></h3>
             <div id="methodText"></div>
+            <p>Target a <span class="highlight">Finished Dough Temperature of 75°F - 78°F</span>.</p>
         </div>
+
         <div class="step">
-            <h3>Phase 3: Bulk Fermentation <span class="timestamp" id="t3"></span></h3>
+            <h3>Phase 3: Bulk & Strengthening <span class="timestamp" id="t3"></span></h3>
+            <p>Perform three sets of stretch-and-folds during the first 2 hours of the bulk phase.</p>
             <div class="note" id="timingNote"></div>
         </div>
+
         <div class="step">
             <h3>Phase 4: Cold Ferment <span class="timestamp" id="t4"></span></h3>
-            <p>Divide dough, shape tight rounds, and refrigerate for <span class="highlight">24–72 hours</span>.</p>
+            <p>Divide, tension, and store in the fridge for <span class="highlight">24–72 hours</span>.</p>
         </div>
     </section>
 </div>
@@ -283,72 +253,78 @@ function getTimeFromMins(mins) {
     const dayMins = mins % 1440;
     let h = Math.floor(dayMins / 60);
     let m = dayMins % 60;
-    let p = h >= 12 ? "PM" : "AM";
+    let period = h >= 12 ? "PM" : "AM";
     h = h % 12 || 12;
-    const t = `${h}:${m < 10 ? '0' + m : m} ${p}`;
-    return days > 0 ? `${t} (Next Day)` : t;
+    const timeStr = `${h}:${m < 10 ? '0' + m : m} ${period}`;
+    return days > 0 ? `${timeStr} (Next Day)` : timeStr;
 }
 
 function update() {
-    const start = parseInt(document.getElementById('timeSlider').value);
+    const startMins = parseInt(document.getElementById('timeSlider').value);
     const qty = parseFloat(document.getElementById('qty').value) || 0;
     const size = parseFloat(document.getElementById('sizeSelect').value) || 340;
-    const buff = parseFloat(document.getElementById('buffer').value) || 1.1;
+    const buffer = parseFloat(document.getElementById('buffer').value) || 1.1;
     const hydro = (parseFloat(document.getElementById('hydro').value) || 65) / 100;
     const temp = parseFloat(document.getElementById('temp').value) || 72;
     const method = document.getElementById('mixMethod').value;
 
-    document.getElementById('clockDisplay').innerText = getTimeFromMins(start);
+    document.getElementById('clockDisplay').innerText = getTimeFromMins(startMins);
 
-    const totalDough = (qty * size) * buff;
+    const totalDough = (qty * size) * buffer;
     const isOver = (method === 'kitchenaid' && totalDough > 1123);
+    
     document.getElementById('batchWarningNote').style.display = isOver ? 'block' : 'none';
     document.getElementById('batchHead').style.display = isOver ? 'table-cell' : 'none';
 
     const totalFlour = totalDough / (1 + hydro + 0.28); 
-    const levTotal = totalFlour * 0.25;
+    const levainTotal = totalFlour * 0.25;
 
-    // Levain Table
-    const lS = (levTotal * 0.2).toFixed(0);
-    const lF = (levTotal * 0.4).toFixed(0);
-    const lW = (levTotal * 0.4).toFixed(0);
+    // Ingredients
+    const lStarter = (levainTotal * 0.20).toFixed(0);
+    const lFlour = (levainTotal * 0.40).toFixed(0);
+    const lWater = (levainTotal * 0.40).toFixed(0);
+
     document.getElementById('levainBody').innerHTML = `
-        <tr><td>Sourdough Starter</td><td class="val">${lS}g</td></tr>
-        <tr><td>Bread Flour</td><td class="val">${lF}g</td></tr>
-        <tr><td>Water (90°F)</td><td class="val">${lW}g</td></tr>`;
+        <tr><td><strong>Sourdough Starter</strong></td><td class="val">${lStarter}g</td></tr>
+        <tr><td><strong>Bread Flour</strong></td><td class="val">${lFlour}g</td></tr>
+        <tr><td><strong>Water</strong></td><td class="val">${lWater}g</td></tr>`;
 
-    // Dough Table
-    const f00 = (totalFlour * 0.9).toFixed(0);
-    const fW = (totalFlour * 0.1).toFixed(0);
+    const f00 = (totalFlour * 0.90).toFixed(0);
+    const fWW = (totalFlour * 0.10).toFixed(0);
     const salt = (totalFlour * 0.03).toFixed(0);
-    const waterI = ((totalFlour * hydro) - 50).toFixed(0);
-
-    const ing = [
-        { n: '"00" Flour', v: f00 }, { n: 'Whole Wheat', v: fW },
-        { n: 'Initial Water', v: waterI }, { n: 'Active Levain', v: levTotal.toFixed(0) },
-        { n: 'Sea Salt', v: salt }, { n: 'Reserved Water', v: "50" }
+    const ingredients = [
+        { n: '"00" Flour', v: f00 },
+        { n: 'Whole Wheat', v: fWW },
+        { n: 'Water (Initial)', v: ((totalFlour * hydro) - 50).toFixed(0) },
+        { n: 'Active Levain', v: levainTotal.toFixed(0) },
+        { n: 'Sea Salt', v: salt },
+        { n: 'Water (Reserved)', v: "50" }
     ];
 
-    document.getElementById('doughBody').innerHTML = ing.map(i => `
+    document.getElementById('doughBody').innerHTML = ingredients.map(i => `
         <tr><td><strong>${i.n}</strong></td><td class="val">${i.v}g</td>
         ${isOver ? `<td class="batch-val">${(i.v/2).toFixed(0)}g</td>` : ''}</tr>`).join('');
 
-    // Timings & Prose
-    const bulkH = 4 * Math.pow(2, (75 - temp) / 12);
-    const mainM = start + 300; 
+    // Timings
+    const levainLead = 300; 
+    const autolyseLead = 20;
+    const foldIntervals = [65, 110, 155];
+    const rawBulkHours = 4 * Math.pow(2, (75 - temp) / 12);
+    const bulkMins = Math.round(rawBulkHours * 60);
 
-    document.getElementById('t0').innerText = `Start // ${getTimeFromMins(start)}`;
-    document.getElementById('t1').innerText = `Autolyse // ${getTimeFromMins(mainM)}`;
-    document.getElementById('t2').innerText = `Mix // ${getTimeFromMins(mainM + 20)}`;
-    document.getElementById('t3').innerText = `Folds // ${getTimeFromMins(mainM + 65)}`;
-    document.getElementById('t4').innerText = `Fridge // ${getTimeFromMins(mainM + Math.round(bulkH * 60))}`;
+    document.getElementById('t0').innerText = `Start // ${getTimeFromMins(startMins)}`;
+    document.getElementById('t1').innerText = `Autolyse // ${getTimeFromMins(startMins + levainLead)}`;
+    document.getElementById('t2').innerText = `Mix // ${getTimeFromMins(startMins + levainLead + autolyseLead)}`;
+    document.getElementById('t3').innerText = `Folds // ${getTimeFromMins(startMins + levainLead + foldIntervals[0])}, ${getTimeFromMins(startMins + levainLead + foldIntervals[1])}`;
+    document.getElementById('t4').innerText = `Fridge // ${getTimeFromMins(startMins + levainLead + bulkMins)}`;
 
-    document.getElementById('levainProse').innerText = `Mix starter (${lS}g), flour (${lF}g), and water (${lW}g). Peak activity expected in 5 hours at ${temp}°F.`;
-    document.getElementById('autolyseText').innerText = `Combine flours, levain, and initial water (${waterI}g). Rest 20 mins.`;
+    document.getElementById('levainProse').innerHTML = `Combine starter, flour, and water. Peak should hit in ~5 hours at ${temp}°F.`;
+    document.getElementById('autolyseText').innerHTML = `Mix flours, levain, and initial water. Rest 20 mins.`;
     document.getElementById('methodText').innerHTML = method === 'kitchenaid' ? 
-        `<p>Mix salt and reserved water on Speed 1 then Speed 2. ${isOver ? '<strong>Process in two batches.</strong>' : ''}</p>` :
-        `<p>Work in salt and reserved water by hand. Slap and fold for 8 mins.</p>`;
-    document.getElementById('timingNote').innerText = `At ${temp}°F, Bulk Fermentation will conclude in roughly ${Math.floor(bulkH)}h ${Math.round((bulkH % 1) * 60)}m.`;
+        `<p>Mix salt and reserved water on Speed 1 (2 mins) then Speed 2 (4 mins).` : 
+        `<p>Hand-mix salt and reserved water. Slap and fold for 8 mins.</p>`;
+    
+    document.getElementById('timingNote').innerText = `Estimated Bulk: ${Math.floor(rawBulkHours)}h ${Math.round((rawBulkHours % 1) * 60)}m.`;
 }
 update();
 </script>
