@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>PIZZA PARTY // Sourdough Logic v1.2</title>
+    <title>PIZZA PARTY // Sourdough Logic v1.3</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
 
@@ -137,7 +137,7 @@
         <div style="text-align: center; border-top: 1px solid var(--border); padding-top: 25px;">
             <label>Start Levain At</label>
             <div class="time-display" id="clockDisplay">--:-- --</div>
-            <input type="range" id="timeSlider" class="time-scrubber" min="0" max="1425" step="15" value="480" oninput="update()">
+            <input type="range" id="timeSlider" class="time-scrubber" min="0" max="1425" step="15" value="120" oninput="update()">
         </div>
     </div>
 
@@ -164,6 +164,7 @@
             <div class="step">
                 <div class="step-head"><span class="step-title">2. Autolyse</span><span class="timestamp" id="t1"></span></div>
                 <p id="autolyseText"></p>
+                <div class="note">This hydrates the flour and begins gluten development without the interference of salt.</div>
             </div>
             <div class="step">
                 <div class="step-head"><span class="step-title">3. Mix the Final Dough</span><span class="timestamp" id="t2"></span></div>
@@ -176,7 +177,7 @@
             </div>
             <div class="step">
                 <div class="step-head"><span class="step-title">5. Divide & Proof</span><span class="timestamp" id="t4"></span></div>
-                <p>Divide into portions and tension into tight balls. Refrigerate for 24 to 72 hours.</p>
+                <p>Gently tip the dough onto a floured surface. Divide into equal portions and use a circular motion to tension the dough into tight balls. Refrigerate for 24 to 72 hours.</p>
             </div>
         </div>
     </div>
@@ -184,7 +185,7 @@
 
 <script>
 function getTimeFromMins(mins) {
-    const dayMins = mins % 1440;
+    const dayMins = ((mins % 1440) + 1440) % 1440;
     const days = Math.floor(mins / 1440);
     let h = Math.floor(dayMins / 60);
     let m = dayMins % 60;
@@ -216,28 +217,41 @@ function update() {
     const levainTotal = totalFlour * 0.25;
 
     const lS = Math.round(levainTotal * 0.20), lF = Math.round(levainTotal * 0.40), lW = Math.round(levainTotal * 0.40);
-    document.getElementById('levainBody').innerHTML = `<tr><td>Mature Starter</td><td class="val">${lS}g</td></tr><tr><td>Bread Flour</td><td class="val">${lF}g</td></tr><tr><td>Water (90°F)</td><td class="val">${lW}g</td></tr>`;
+    document.getElementById('levainBody').innerHTML = `<tr><td>Mature Starter</td><td class="val">${lS}g</td></tr><tr><td>White Bread Flour</td><td class="val">${lF}g</td></tr><tr><td>Water (90°F)</td><td class="val">${lW}g</td></tr>`;
 
     const f00 = Math.round(totalFlour * 0.90), fWW = Math.round(totalFlour * 0.10), salt = Math.round(totalFlour * 0.03), waterInitial = Math.round((totalFlour * hydro) - 50);
     document.getElementById('doughBody').innerHTML = `<tr><td>"00" Flour</td><td class="val">${f00}g</td></tr><tr><td>WW Flour</td><td class="val">${fWW}g</td></tr><tr><td>Initial Water</td><td class="val">${waterInitial}g</td></tr><tr><td>Levain</td><td class="val">${Math.round(levainTotal)}g</td></tr><tr><td>Sea Salt</td><td class="val">${salt}g</td></tr><tr><td>Reserve Water</td><td class="val">50g</td></tr>`;
 
-    const lWait = 5 * Math.pow(2, (75 - temp) / 12), bWait = 4 * Math.pow(2, (75 - temp) / 12);
-    document.getElementById('t0').innerText = getTimeFromMins(startMins);
-    document.getElementById('t1').innerText = getTimeFromMins(startMins + (lWait * 60));
-    document.getElementById('t2').innerText = getTimeFromMins(startMins + (lWait * 60) + 30);
-    document.getElementById('t3').innerText = getTimeFromMins(startMins + (lWait * 60) + 45);
-    document.getElementById('t4').innerText = getTimeFromMins(startMins + (lWait * 60) + (bWait * 60));
+    const lWaitHrs = 5 * Math.pow(2, (75 - temp) / 12);
+    const bWaitHrs = 4 * Math.pow(2, (75 - temp) / 12);
+    
+    const lMins = Math.round(lWaitHrs * 60);
+    const bMins = Math.round(bWaitHrs * 60);
 
-    document.getElementById('levainProse').innerHTML = `Combine <span class="ingredient-highlight">Starter</span> (${lS}g), <span class="ingredient-highlight">Flour</span> (${lF}g), and <span class="ingredient-highlight">Water</span> (${lW}g). Rest at ${temp}°F until bubbly.`;
-    document.getElementById('levainWaitNote').innerText = `Ready in approx ${decimalToFraction(Math.round(lWait * 4) / 4)} hours.`;
-    document.getElementById('autolyseText').innerHTML = `Mix <span class="ingredient-highlight">Flours</span> (${f00}g/${fWW}g), <span class="ingredient-highlight">Levain</span> (${Math.round(levainTotal)}g), and <span class="ingredient-highlight">Water</span> (${waterInitial}g). Rest 30m.`;
-    document.getElementById('methodText').innerHTML = `<p>Add <span class="ingredient-highlight">Salt</span> (${salt}g) and <span class="ingredient-highlight">Reserve Water</span> (50g). ${method === 'kitchenaid' ? 'Mix Speed 2 for 5m.' : 'Hand mix until smooth.'}</p>`;
-    document.getElementById('bulkText').innerHTML = `Perform 3 sets of folds. Total bulk estimated at ${decimalToFraction(Math.round(bWait * 4) / 4)} hours.`;
+    document.getElementById('t0').innerText = getTimeFromMins(startMins);
+    document.getElementById('t1').innerText = getTimeFromMins(startMins + lMins);
+    document.getElementById('t2').innerText = getTimeFromMins(startMins + lMins + 30);
+    document.getElementById('t3').innerText = getTimeFromMins(startMins + lMins + 45);
+    document.getElementById('t4').innerText = getTimeFromMins(startMins + lMins + bMins);
+
+    document.getElementById('levainProse').innerHTML = `In a clean jar, combine <span class="ingredient-highlight">Mature Starter</span> (${lS}g), <span class="ingredient-highlight">White Bread Flour</span> (${lF}g), and <span class="ingredient-highlight">Water</span> (${lW}g) at 90°F. Mix until incorporated and rest at ${temp}°F.`;
+    document.getElementById('levainWaitNote').innerText = `Your levain should be ready in approximately ${decimalToFraction(Math.round(lWaitHrs * 4) / 4)} hours.`;
+    
+    document.getElementById('autolyseText').innerHTML = `Combine <span class="ingredient-highlight">"00" Flour</span> (${f00}g), <span class="ingredient-highlight">Whole Wheat Flour</span> (${fWW}g), <span class="ingredient-highlight">Active Levain</span> (${Math.round(levainTotal)}g), and the <span class="ingredient-highlight">Initial Water</span> (${waterInitial}g). Mix until no dry spots remain and rest for 30m.`;
+    
+    const mDesc = method === 'kitchenaid' ? 
+        `Sprinkle <span class="ingredient-highlight">Fine Sea Salt</span> (${salt}g) and <span class="ingredient-highlight">Reserve Water</span> (50g). Mix on Speed 2 for 5m.` : 
+        `Pinch in the <span class="ingredient-highlight">Fine Sea Salt</span> (${salt}g) and <span class="ingredient-highlight">Reserve Water</span> (50g). Slap-and-fold for 8m.`;
+    document.getElementById('methodText').innerHTML = `<p>${mDesc} Target internal temperature is 78°F.</p>`;
+    
+    document.getElementById('bulkText').innerHTML = `Perform 3 sets of folds every 45 minutes. Pick up the dough from underneath and stretch it in three or four folds over itself.`;
+    document.getElementById('timingNote').innerText = `Total bulk fermentation estimated at ${decimalToFraction(Math.round(bWaitHrs * 4) / 4)} hours.`;
 }
 
-// Initialize with current time (01:55 AM)
-const now = new Date();
-document.getElementById('timeSlider').value = (now.getHours() * 60) + now.getMinutes();
+// Set time to current (02:00 AM rounded)
+const d = new Date();
+let currentMins = (d.getHours() * 60) + d.getMinutes();
+document.getElementById('timeSlider').value = Math.round(currentMins / 15) * 15;
 update();
 </script>
 </body>
