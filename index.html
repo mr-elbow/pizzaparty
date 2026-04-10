@@ -157,14 +157,14 @@
         <div class="input-grid">
             <div class="control-group">
                 <label>Quantity</label>
-                <input type="number" id="qty" value="3" oninput="update()">
+                <input type="number" id="qty" value="4" oninput="update()">
             </div>
             <div class="control-group">
                 <label>Weight per Ball</label>
                 <select id="sizeSelect" onchange="update()">
                     <option value="200">200g (10")</option>
-                    <option value="280">280g (12")</option>
-                    <option value="340" selected>340g (14")</option>
+                    <option value="280" selected>280g (12")</option>
+                    <option value="340" >340g (14")</option>
                     <option value="450">450g (16")</option>
                 </select>
             </div>
@@ -172,8 +172,8 @@
                 <label>Waste Buffer</label>
                 <select id="buffer" onchange="update()">
                     <option value="1.0">0%</option>
-                    <option value="1.05">5%</option>
-                    <option value="1.10" selected>10%</option>
+                    <option value="1.05" selected>5%</option>
+                    <option value="1.10">10%</option>
                 </select>
             </div>
             <div class="control-group">
@@ -190,13 +190,13 @@
                     <option value="kitchenaid">KitchenAid</option>
                     <option value="hand">Hand Mix</option>
                 </select>
-                <div id="batchAlert" class="batch-alert">⚠️ Capacity Exceeded: Batching Applied</div>
+                <div id="batchAlert" class="batch-alert">KitchenAId Capacity Exceeded: Batching Applied</div>
             </div>
         </div>
 
         <div style="text-align: center; border-top: 1px solid var(--border); padding-top: 25px;">
             <label>Start Levain At</label>
-            <div class="time-display" id="clockDisplay">08:00 AM</div>
+            <div class="time-display" id="clockDisplay">09:00 AM</div>
             <input type="range" id="timeSlider" class="time-scrubber" min="0" max="1425" step="15" value="480" oninput="update()">
         </div>
     </div>
