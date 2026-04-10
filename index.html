@@ -255,6 +255,7 @@
                     <span class="timestamp" id="t0"></span>
                 </div>
                 <p id="levainProse"></p>
+                <div class="note" id="levainWaitNote"></div>
             </div>
 
             <div class="step">
@@ -356,18 +357,21 @@ function update() {
         ${isOver ? `<td class="batch-val">${(i.v/2).toFixed(0)}g</td>` : ''}</tr>`).join('');
 
     // Timings
-    const levainWait = 300;
+    const levainWaitHours = 5 * Math.pow(2, (75 - temp) / 12);
+    const levainWaitMins = Math.round(levainWaitHours * 60);
     const autolyseWait = 30;
     const bulkHours = 4 * Math.pow(2, (75 - temp) / 12);
     const bulkMins = Math.round(bulkHours * 60);
 
     document.getElementById('t0').innerText = getTimeFromMins(startMins);
-    document.getElementById('t1').innerText = getTimeFromMins(startMins + levainWait);
-    document.getElementById('t2').innerText = getTimeFromMins(startMins + levainWait + autolyseWait);
-    document.getElementById('t3').innerText = getTimeFromMins(startMins + levainWait + autolyseWait + 15);
-    document.getElementById('t4').innerText = getTimeFromMins(startMins + levainWait + bulkMins);
+    document.getElementById('t1').innerText = getTimeFromMins(startMins + levainWaitMins);
+    document.getElementById('t2').innerText = getTimeFromMins(startMins + levainWaitMins + autolyseWait);
+    document.getElementById('t3').innerText = getTimeFromMins(startMins + levainWaitMins + autolyseWait + 15);
+    document.getElementById('t4').innerText = getTimeFromMins(startMins + levainWaitMins + bulkMins);
 
-    document.getElementById('levainProse').innerText = `Mix starter (${lS}g), flour (${lF}g), and warm water (${lW}g). Store at ${temp}°F until tripled in volume.`;
+    document.getElementById('levainProse').innerText = `Mix starter (${lS}g), flour (${lF}g), and warm water (${lW}g). Store at ${temp}°F until tripled in volume and bubbly.`;
+    document.getElementById('levainWaitNote').innerText = `At ${temp}°F, levain should be ready in approx ${Math.floor(levainWaitHours)}h ${Math.round((levainWaitHours % 1) * 60)}m.`;
+    
     document.getElementById('autolyseText').innerText = `Mix flours, levain, and ${waterInitial}g of water until no dry spots remain. Rest covered for 30 minutes.`;
     
     document.getElementById('methodText').innerHTML = method === 'kitchenaid' ? 
