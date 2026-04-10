@@ -33,15 +33,14 @@
 
         .container { max-width: 1000px; margin: auto; }
 
-        header { text-align: center; margin-bottom: 60px; }
+        header { text-align: center; margin-bottom: 40px; }
         
-        h1 { 
-            font-family: 'Comic Neue', cursive; 
-            font-size: 6rem; 
-            color: var(--accent); 
-            margin: 0;
-            line-height: 1;
-            text-transform: uppercase;
+        /* Logo Styling */
+        .header-logo {
+            max-width: 450px;
+            width: 100%;
+            height: auto;
+            margin-bottom: 10px;
         }
         
         .subtitle { 
@@ -50,6 +49,7 @@
             font-size: 0.9rem; 
             color: var(--text-muted); 
             font-weight: 500;
+            display: block;
         }
 
         .dashboard {
@@ -171,7 +171,7 @@
 
 <div class="container">
     <header>
-        <h1>PIZZA PARTY</h1>
+        <img src="pizzapartylogo.jpg" alt="PIZZA PARTY" class="header-logo">
         <div class="subtitle">Precision Sourdough Logic</div>
     </header>
 
