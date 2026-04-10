@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GOOF PIZZA</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,700;1,300&family=Bangers&display=swap');
+
+        :root {
+            --bg: #0d0d0d;
+            --surface: #161616;
+            --accent: #ff5a00;
+            --text-main: #f2f2f2;
+            --text-muted: #777;
+            --border: #262626;
+            --success: #00ff9d;
+            --warning: #ff3e3e;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text-main); 
+            line-height: 1.8;
+            margin: 0; 
+            padding: 40px 20px; 
+        }
+
+        .container { max-width: 950px; margin: auto; }
+
+        header { text-align: center; margin-bottom: 50px; }
+        h1 { 
+            font-family: 'Bangers', cursive; 
+            font-size: 6rem; 
+            color: var(--accent); 
+            margin: 0;
+            letter-spacing: 2px;
+            line-height: 1;
+        }
+        .subtitle { 
+            text-transform: uppercase; 
+            letter-spacing: 5px; 
+            font-size: 0.85rem; 
+            color: var(--text-muted); 
+            margin-top: 5px;
+        }
+
+        .dashboard {
+            background: var(--surface);
+            padding: 40px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 60px;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .control-group { display: flex; flex-direction: column; }
+        label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; color: var(--accent); }
+        
+        select, input[type="number"] { 
+            padding: 12px; 
+            border: 1px solid var(--border); 
+            background: #000;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .slider-section {
+            border-top: 1px solid var(--border);
+            padding-top: 30px;
+            text-align: center;
+        }
+        .time-scrubber {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            background: var(--border);
+            outline: none;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+        .time-scrubber::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            background: var(--accent);
+            cursor: pointer;
+            border-radius: 50%;
+            border: 3px solid var(--bg);
+        }
+        .time-display { font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 5px; }
+
+        #warning {
+            color: var(--warning);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            border: 1px solid var(--warning);
+            padding: 12px;
+            text-align: center;
+            margin-bottom: 25px;
+            display: none;
+        }
+
+        h2 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 4px; color: var(--text-muted); border-bottom: 1px solid var(--border); padding-bottom: 15px; margin-top: 60px; }
+        
+        .recipe-table { width: 100%; border-collapse: collapse; margin: 30px 0; font-size: 1.05rem; }
+        .recipe-table th { text-align: left; font-size: 0.6rem; text-transform: uppercase; color: var(--text-muted); padding-bottom: 10px; border-bottom: 2px solid var(--border); }
+        .recipe-table td { padding: 20px 0; border-bottom: 1px solid var(--border); font-weight: 300; }
+        .val { text-align: right; font-weight: 700; color: var(--accent); }
+        .batch-val { text-align: right; color: var(--success); font-weight: 700; }
+
+        .prose { margin-top: 50px; }
+        .step { margin-bottom: 45px; }
+        .step h3 { font-size: 1.2rem; font-weight: 700; color: #fff; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+        .timestamp { font-family: monospace; font-size: 0.9rem; color: var(--success); }
+        .prose p { color: #b0b0b0; font-weight: 300; max-width: 800px; }
+        
+        .note { 
+            background: #1a1510;
+            border-left: 2px solid var(--accent); 
+            padding: 20px; 
+            margin: 30px 0; 
+            font-style: italic; 
+            color: #d1d1d1; 
+            font-size: 0.95rem;
+        }
+
+        .highlight { color: #fff; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>GOOF PIZZA</h1>
+        <div class="subtitle">Sourdough Pizza Calculator</div>
+    </header>
+
+    <div class="dashboard">
+        <div id="warning">⚠️ KitchenAid Capacity Exceeded: Batch Scaling Applied</div>
+        
+        <div class="input-grid">
+            <div class="control-group">
+                <label>Quantity (Balls)</label>
+                <input type="number" id="qty" value="4" oninput="update()">
+            </div>
+            <div class="control-group">
+                <label>Target Weight</label>
+                <select id="sizeSelect" onchange="update()">
+                    <option value="200">200g (10")</option>
+                    <option value="280">280g (12")</option>
+                    <option value="340" selected>340g (14")</option>
+                    <option value="450">450g (16")</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Hydration (%)</label>
+                <input type="number" id="hydro" value="65" oninput="update()">
+            </div>
+            <div class="control-group">
+                <label>Ambient Temp (°F)</label>
+                <input type="number" id="temp" value="72" oninput="update()">
+            </div>
+            <div class="control-group">
+                <label>Method</label>
+                <select id="mixMethod" onchange="update()">
+                    <option value="kitchenaid">KitchenAid</option>
+                    <option value="hand">Hand Mix</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="slider-section">
+            <label>Autolyse Start Time</label>
+            <div class="time-display" id="clockDisplay">09:00 AM</div>
+            <input type="range" id="timeSlider" class="time-scrubber" min="0" max="1425" step="15" value="540" oninput="update()">
+        </div>
+    </div>
+
+    <section>
+        <h2>01 / The Formula</h2>
+        <table class="recipe-table">
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th style="text-align: right;">Total Weight</th>
+                    <th id="batchHead" style="text-align: right; display: none;">Batch (1/2)</th>
+                </tr>
+            </thead>
+            <tbody id="doughBody"></tbody>
+        </table>
+    </section>
+
+    <section class="prose">
+        <h2>02 / Methodical Execution</h2>
+
+        <div class="step">
+            <h3>Autolyse & Initial Hydration <span class="timestamp" id="t1"></span></h3>
+            <p id="autolyseText"></p>
+        </div>
+
+        <div class="step">
+            <h3>Structural Development <span class="timestamp" id="t2"></span></h3>
+            <div id="methodText"></div>
+            <p>Ensure your final dough hits a <span class="highlight">Target Finished Temperature of 75°F - 78°F</span>. Use your ambient room temperature as a guide; if the air is cold, increase the water temperature slightly to maintain a healthy fermentation cycle.</p>
+        </div>
+
+        <div class="step">
+            <h3>Bulk Fermentation & Strengthening <span class="timestamp" id="t3"></span></h3>
+            <p>During the first two hours, perform three sets of stretch-and-folds. Pull the dough upward until you feel tension and fold it over itself. Repeat this for all four sides. This builds the vertical strength required for a high-domed, airy crust.</p>
+            <div class="note" id="timingNote"></div>
+        </div>
+
+        <div class="step">
+            <h3>Partitioning & Cold Ferment <span class="timestamp" id="t4"></span></h3>
+            <p>Once the bulk period concludes, gently tip the dough onto a work surface. Shape into tight, smooth rounds by dragging the dough against the counter to create surface tension. Transfer to oiled containers and refrigerate for <span class="highlight">24–72 hours</span>.</p>
+        </div>
+
+        <div class="step">
+            <h3>The Tempering & Bake</h3>
+            <p id="bakeText"></p>
+            <div class="note" id="fridgeNote"></div>
+        </div>
+    </section>
+</div>
+
+<script>
+function getTimeFromMins(mins) {
+    let h = Math.floor(mins / 60);
+    let m = mins % 60;
+    let period = h >= 12 ? "PM" : "AM";
+    h = h % 12 || 12;
+    return `${h}:${m < 10 ? '0' + m : m} ${period}`;
+}
+
+function update() {
+    const sliderVal = parseInt(document.getElementById('timeSlider').value);
+    const qty = parseFloat(document.getElementById('qty').value) || 0;
+    const size = parseFloat(document.getElementById('sizeSelect').value) || 340;
+    const hydro = (parseFloat(document.getElementById('hydro').value) || 65) / 100;
+    const temp = parseFloat(document.getElementById('temp').value) || 72;
+    const method = document.getElementById('mixMethod').value;
+
+    document.getElementById('clockDisplay').innerText = getTimeFromMins(sliderVal);
+
+    const totalDough = (qty * size) * 1.10;
+    const isOver = totalDough > 2500;
+    document.getElementById('warning').style.display = isOver ? 'block' : 'none';
+    document.getElementById('batchHead').style.display = isOver ? 'table-cell' : 'none';
+
+    const totalFlour = totalDough / (1 + hydro + 0.28); 
+    
+    // Ingredients
+    const f00 = (totalFlour * 0.90).toFixed(0);
+    const fWW = (totalFlour * 0.10).toFixed(0);
+    const waterInitial = ((totalFlour * hydro) - 50).toFixed(0);
+    const activeLevain = (totalFlour * 0.25).toFixed(0);
+    const salt = (totalFlour * 0.03).toFixed(0);
+    const waterRes = "50";
+
+    const ingredients = [
+        { name: '<strong>"00" Pizza Flour</strong> (90%)', val: f00 },
+        { name: '<strong>Whole Wheat Flour</strong> (10%)', val: fWW },
+        { name: '<strong>Initial Water</strong> (Autolyse)', val: waterInitial },
+        { name: '<strong>Active Levain</strong>', val: activeLevain },
+        { name: '<strong>Fine Sea Salt</strong> (3%)', val: salt },
+        { name: '<strong>Reserved Water</strong> (Final Mix)', val: waterRes }
+    ];
+
+    let html = "";
+    ingredients.forEach(ing => {
+        html += `<tr><td>${ing.name}</td><td class="val">${ing.val}g</td>
+                 ${isOver ? `<td class="batch-val">${(ing.val / 2).toFixed(0)}g</td>` : ''}</tr>`;
+    });
+    document.getElementById('doughBody').innerHTML = html;
+
+    // Prose Updates with formatting
+    document.getElementById('autolyseText').innerHTML = `Combine <strong>"00" Pizza Flour</strong> (${f00}g), <strong>Whole Wheat Flour</strong> (${fWW}g), and <strong>Active Levain</strong> (${activeLevain}g) with the <strong>Initial Water</strong> (${waterInitial}g). Mix until no dry flour remains. Allow this shaggy mass to rest for 20 minutes to improve extensibility.`;
+
+    document.getElementById('methodText').innerHTML = method === 'kitchenaid' ? 
+        `<p>Using the dough hook, add <strong>Fine Sea Salt</strong> (${salt}g) and <strong>Reserved Water</strong> (${waterRes}g) to the bowl. Mix on <span class="highlight">Speed 1</span> for 2 minutes to incorporate. Increase to <span class="highlight">Speed 2</span> and mix for 4–5 minutes until the dough clears the bowl.</p>` :
+        `<p>Incorporate <strong>Fine Sea Salt</strong> (${salt}g) and <strong>Reserved Water</strong> (${waterRes}g) using the pincet method. Transfer to the counter and perform slap-and-folds for <span class="highlight">8 minutes</span> until the dough is smooth and resilient.</p>`;
+
+    document.getElementById('bakeText').innerHTML = `On bake day, remove your dough from the refrigerator and allow it to sit covered at room temperature. This releases the tension in the cold fats and proteins, making it easier to stretch without tearing. Stretching cold dough results in a denser, less airy "cornicione."`;
+
+    // Thermodynamic Timing
+    const rawHours = 4 * Math.pow(2, (75 - temp) / 12);
+    const h = Math.floor(rawHours);
+    const m = Math.round((rawHours - h) * 60);
+    const totalMins = Math.round(rawHours * 60);
+
+    // Tempering Logic (Suggested time to remove from fridge)
+    // Formula: Cooler rooms need more time. Target ~2 hours at 72F.
+    const temperHours = 2 * Math.pow(1.1, (72 - temp) / 2);
+    const tH = Math.floor(temperHours);
+    const tM = Math.round((temperHours - tH) * 60);
+    
+    document.getElementById('t1').innerText = `Start // ${getTimeFromMins(sliderVal)}`;
+    document.getElementById('t2').innerText = `Mix // ${getTimeFromMins(sliderVal + 20)}`;
+    document.getElementById('t3').innerText = `Folds // ${getTimeFromMins(sliderVal + 65)}, ${getTimeFromMins(sliderVal + 110)}, ${getTimeFromMins(sliderVal + 155)}`;
+    document.getElementById('t4').innerText = `Shape // ${getTimeFromMins(sliderVal + totalMins)}`;
+
+    document.getElementById('timingNote').innerText = `At ${temp}°F, the culture requires approximately ${h} hours and ${m} minutes to reach ideal bulk volume.`;
+    document.getElementById('fridgeNote').innerText = `Suggested Tempering: Based on your ${temp}°F ambient temperature, remove dough from the fridge ${tH} hours and ${tM} minutes before stretching.`;
+}
+
+update();
+</script>
+</body>
+</html>
