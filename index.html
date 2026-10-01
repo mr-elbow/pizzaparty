@@ -216,7 +216,7 @@
                                 <option value="1:2:2">1:2:2 (6-8h)</option>
                                 <option value="1:3:3">1:3:3 (8-10h)</option>
                                 <option value="1:4:4">1:4:4 (10-12h)</option>
-                                <option value="1:5:5" selected>1:1:5 (12-14h)</option>
+                                <option value="1:1:5" selected>1:1:5 (12-14h)</option>
                             </select>
                         </th>
                     </tr>
@@ -224,7 +224,7 @@
                 <tbody id="refreshBody"></tbody>
             </table>
             <table>
-                <thead><tr><th>Levain (Phase 1 - Buffered)</th><th style="text-align:right">Mass</th></tr></thead>
+                <thead><tr><th>Levain (Phase 1 - 1:2:2 w/+30g Fridge Seed)</th><th style="text-align:right">Mass</th></tr></thead>
                 <tbody id="levainBody"></tbody>
             </table>
             <table>
@@ -253,7 +253,7 @@
 
             <div class="step">
                 <div class="step-head">
-                    <span class="step-title">1. Build Levain</span>
+                    <span class="step-title">1. Build Levain (1:2:2 + 30g Seed Surplus)</span>
                     <span class="timestamp" id="t0"></span>
                 </div>
                 <p id="levainProse"></p>
@@ -330,12 +330,17 @@ function update() {
 
     const totalFlour = totalDough / (1 + hydro + 0.28); 
     
-    // Levain mass with buffer applied (double-buffered)
-    const levainTotal = (totalFlour * 0.25) * buffer;
+    // Base levain needed strictly for the dough recipe (no percentage buffer)
+    const exactLevainNeeded = totalFlour * 0.25;
+    
+    // Levain build total includes a flat +30g surplus for your fridge seed storage
+    const levainTotal = exactLevainNeeded + 30;
 
-    const lS = (levainTotal * 0.20).toFixed(0);
-    const lF = (levainTotal * 0.40).toFixed(0);
-    const lW = (levainTotal * 0.40).toFixed(0);
+    // 1:2:2 Levain Ratio breakdown (1 part starter, 2 parts flour, 2 parts water = 5 parts total)
+    const lS = (levainTotal * (1 / 5)).toFixed(0);
+    const lF = (levainTotal * (2 / 5)).toFixed(0);
+    const lW = (levainTotal * (2 / 5)).toFixed(0);
+    
     document.getElementById('levainBody').innerHTML = `
         <tr><td>Starter</td><td class="val">${lS}g</td></tr>
         <tr><td>Bread Flour</td><td class="val">${lF}g</td></tr>
@@ -365,7 +370,7 @@ function update() {
         { n: '"00" Flour', v: f00 },
         { n: 'Whole Wheat', v: fWW },
         { n: 'Water (Initial)', v: waterInitial },
-        { n: 'Active Levain', v: levainTotal.toFixed(0) },
+        { n: 'Active Levain (Recipe)', v: exactLevainNeeded.toFixed(0) },
         { n: 'Sea Salt', v: salt },
         { n: 'Water (Reserve)', v: "50" }
     ];
@@ -385,10 +390,10 @@ function update() {
     document.getElementById('t3').innerText = getTimeFromMins(startMins + levainWaitMins + 45);
     document.getElementById('t4').innerText = getTimeFromMins(startMins + levainWaitMins + bulkMins);
 
-    document.getElementById('levainProse').innerHTML = `Mix <span class="ingredient-highlight">starter</span> (${lS}g), <span class="ingredient-highlight">flour</span> (${lF}g), and <span class="ingredient-highlight">warm water</span> (${lW}g). Store at ${temp}°F.`;
-    document.getElementById('levainWaitNote').innerText = `Ready in approx ${Math.floor(levainWaitHours)}h ${Math.round((levainWaitHours % 1) * 60)}m.`;
+    document.getElementById('levainProse').innerHTML = `Mix <span class="ingredient-highlight">starter</span> (${lS}g), <span class="ingredient-highlight">flour</span> (${lF}g), and <span class="ingredient-highlight">water</span> (${lW}g) in a 1:2:2 ratio (includes +30g surplus to reserve back into your fridge starter jar). Store at ${temp}°F.`;
+    document.getElementById('levainWaitNote').innerText = `Ready in approx ${Math.floor(levainWaitHours)}h ${Math.round((levainWaitHours % 1) * 60)}m. Use ${exactLevainNeeded.toFixed(0)}g for your dough and save ~30g for next time!`;
     
-    document.getElementById('autolyseText').innerHTML = `Mix <span class="ingredient-highlight">flours</span>, <span class="ingredient-highlight">levain</span>, and <span class="ingredient-highlight">water</span> (${waterInitial}g). Rest 30m.`;
+    document.getElementById('autolyseText').innerHTML = `Mix <span class="ingredient-highlight">flours</span>, <span class="ingredient-highlight">levain</span> (${exactLevainNeeded.toFixed(0)}g), and <span class="ingredient-highlight">water</span> (${waterInitial}g). Rest 30m.`;
     
     document.getElementById('methodText').innerHTML = method === 'kitchenaid' ? 
         `<p>Add <span class="ingredient-highlight">salt</span> and remaining <span class="ingredient-highlight">50g water</span>. Mix Speed 2 for 5m. ${isOver ? '<strong>(Batching Required)</strong>' : ''}</p>` : 
