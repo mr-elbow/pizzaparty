@@ -369,10 +369,8 @@ function update() {
     const fWW = (totalFlour * 0.05).toFixed(0);
     const salt = (totalFlour * 0.03).toFixed(0);
     
-    const targetDT = 77;
-    let initialWaterTemp = Math.round((targetDT * 3) - temp - temp);
-    if (initialWaterTemp < 65) initialWaterTemp = 65;
-    if (initialWaterTemp > 85) initialWaterTemp = 85;
+    // Room temperature water default (~70°F) for main dough build
+    const initialWaterTemp = 70;
 
     const waterInitial = ((totalFlour * hydro) - 40).toFixed(0);
 
