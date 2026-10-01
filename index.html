@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pizza Party v1.3 - Sourdough Workflow & Calculator</title>
+    <title>Pizza Party v1.3 - Dynamic Sourdough Workflow & Calculator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -27,19 +27,53 @@
         <header class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-700 pb-6 gap-4">
             <div>
                 <h1 class="text-3xl font-extrabold tracking-tight text-accent">🍕 Pizza Party v1.3</h1>
-                <p class="text-slate-400 text-sm mt-1">Sourdough Ooni Pizza Workflow & Precision Calculator</p>
+                <p class="text-slate-400 text-sm mt-1">Dynamic Sourdough Workflow & Precision Calculator</p>
             </div>
             <div class="bg-cardbg px-4 py-2 rounded-lg border border-slate-700 text-xs text-slate-300">
-                <span class="block font-semibold text-accent">Target Setup:</span> 6x 14" Pizzas (2 Batches) | 1-4 Day Cold Ferment
+                <span class="block font-semibold text-accent" id="headerSummary">Target: 3x 14" Pizzas | 1-4 Day Cold Ferment</span>
             </div>
         </header>
 
-        <!-- Configuration & Dashboard Panel -->
+        <!-- Interactive Control Panel -->
+        <div class="bg-cardbg p-6 rounded-xl border border-slate-700 shadow-lg grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Pizzas</label>
+                <input id="inputQty" type="number" min="1" max="12" value="3" class="w-full bg-slate-800 text-slate-100 px-3 py-2 rounded border border-slate-700 text-sm focus:outline-none focus:border-accent font-mono">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Ball Weight</label>
+                <select id="selectBallWeight" class="w-full bg-slate-800 text-slate-100 px-3 py-2 rounded border border-slate-700 text-sm focus:outline-none focus:border-accent">
+                    <option value="300">300g (12")</option>
+                    <option value="340" selected>340g (14" Standard)</option>
+                    <option value="381">381g (14" Hefty)</option>
+                    <option value="420">420g (16" Large)</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Waste Buffer</label>
+                <select id="selectBuffer" class="w-full bg-slate-800 text-slate-100 px-3 py-2 rounded border border-slate-700 text-sm focus:outline-none focus:border-accent">
+                    <option value="0.0">0%</option>
+                    <option value="0.05">5%</option>
+                    <option value="0.10" selected>10%</option>
+                    <option value="0.15">15%</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Hydration (%)</label>
+                <input id="inputHydration" type="number" min="55" max="75" value="62" class="w-full bg-slate-800 text-slate-100 px-3 py-2 rounded border border-slate-700 text-sm focus:outline-none focus:border-accent font-mono">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Kitchen Temp (°F)</label>
+                <input id="inputTemp" type="number" min="60" max="90" value="74" class="w-full bg-slate-800 text-slate-100 px-3 py-2 rounded border border-slate-700 text-sm focus:outline-none focus:border-accent font-mono">
+            </div>
+        </div>
+
+        <!-- Ingredients & Environment Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             
             <!-- Ingredients Card -->
             <div class="bg-cardbg p-6 rounded-xl border border-slate-700 shadow-lg space-y-4">
-                <h2 class="text-xl font-bold text-accent border-b border-slate-700 pb-2">Batch Ingredients (2 Batches Total)</h2>
+                <h2 class="text-xl font-bold text-accent border-b border-slate-700 pb-2">Dynamic Recipe Breakdown</h2>
                 
                 <div class="space-y-3 text-sm">
                     <!-- Step 0 Starter Refresh Configurable -->
@@ -51,32 +85,31 @@
                                 <option value="1:2:2">1:2:2 (6-8h)</option>
                                 <option value="1:3:3">1:3:3 (8-10h)</option>
                                 <option value="1:4:4">1:4:4 (10-12h)</option>
-                                <option value="1:5:5" selected>1:5:5 (12-14h)</option>
+                                <option value="1:1:5" selected>1:1:5 (12-14h)</option>
                             </select>
                         </div>
                         <div class="flex justify-between text-slate-300"><span>Cold Starter:</span> <span id="refStarter" class="font-mono font-bold">25g</span></div>
-                        <div class="flex justify-between text-slate-300"><span>Bread Flour:</span> <span id="refFlour" class="font-mono font-bold">125g</span></div>
+                        <div class="flex justify-between text-slate-300"><span>Feed Flour (Bread/WW):</span> <span id="refFlour" class="font-mono font-bold">125g</span></div>
                         <div class="flex justify-between text-slate-300"><span>Water:</span> <span id="refWater" class="font-mono font-bold">125g</span></div>
                     </div>
 
-                    <!-- Levain Build with 10% buffer -->
+                    <!-- Levain Build with Buffer Applied -->
                     <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-800">
-                        <span class="font-semibold text-accent block mb-1">Levain Build (Friday Morning - ~10% Buffer):</span>
-                        <div class="flex justify-between text-slate-300"><span>Active Fed Starter:</span> <span class="font-mono font-bold">38g</span></div>
-                        <div class="flex justify-between text-slate-300"><span>Bread Flour:</span> <span class="font-mono font-bold">77g</span></div>
-                        <div class="flex justify-between text-slate-300"><span>Warm Water (~85°F):</span> <span class="font-mono font-bold">77g</span></div>
-                        <div class="text-xs text-slate-400 mt-1 italic">Scaled per batch with buffer to ensure you always have enough (approx. 192g total yield per batch build).</div>
+                        <span class="font-semibold text-accent block mb-1">Levain Build (Includes Buffer):</span>
+                        <div class="flex justify-between text-slate-300"><span>Active Fed Starter:</span> <span id="levStarter" class="font-mono font-bold">38g</span></div>
+                        <div class="flex justify-between text-slate-300"><span>Bread Flour:</span> <span id="levFlour" class="font-mono font-bold">77g</span></div>
+                        <div class="flex justify-between text-slate-300"><span>Warm Water (~85°F):</span> <span id="levWater" class="font-mono font-bold">77g</span></div>
+                        <div class="text-xs text-slate-400 mt-1 italic" id="levainNote">Scaled with waste buffer applied.</div>
                     </div>
 
                     <!-- Main Dough -->
                     <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-800 space-y-1">
-                        <span class="font-semibold text-accent block mb-1">Main Dough Recipe (Per Batch / Make 2):</span>
-                        <div class="flex justify-between text-slate-300"><span>Type 00 Flour:</span> <span class="font-mono font-bold">530g</span></div>
-                        <div class="flex justify-between text-slate-300"><span>Whole Wheat Flour:</span> <span class="font-mono font-bold">60g</span></div>
-                        <div class="flex justify-between text-slate-300"><span>Initial Water (~72°F):</span> <span class="font-mono font-bold">343g</span></div>
-                        <div class="flex justify-between text-slate-300"><span>Reserved Water (Bassinage):</span> <span class="font-mono font-bold">25g</span></div>
-                        <div class="flex justify-between text-slate-300"><span>Levain:</span> <span class="font-mono font-bold">162g</span></div>
-                        <div class="flex justify-between text-slate-300"><span>Salt:</span> <span class="font-mono font-bold">18g</span></div>
+                        <span class="font-semibold text-accent block mb-1">Main Dough Recipe (Total Batch):</span>
+                        <div class="flex justify-between text-slate-300"><span>Type 00 Flour (89.8%):</span> <span id="recipe00" class="font-mono font-bold">530g</span></div>
+                        <div class="flex justify-between text-slate-300"><span>Whole Wheat Flour (10.2%):</span> <span id="recipeWW" class="font-mono font-bold">60g</span></div>
+                        <div class="flex justify-between text-slate-300"><span>Total Water:</span> <span id="recipeWater" class="font-mono font-bold">368g</span></div>
+                        <div class="flex justify-between text-slate-300"><span>Levain (Inoculation):</span> <span id="recipeLevain" class="font-mono font-bold">162g</span></div>
+                        <div class="flex justify-between text-slate-300"><span>Salt (3.0%):</span> <span id="recipeSalt" class="font-mono font-bold">18g</span></div>
                     </div>
                 </div>
             </div>
@@ -84,17 +117,10 @@
             <!-- Environmental Calculator Card -->
             <div class="bg-cardbg p-6 rounded-xl border border-slate-700 shadow-lg space-y-6 flex flex-col justify-between">
                 <div>
-                    <h2 class="text-xl font-bold text-accent border-b border-slate-700 pb-2">Environment & Fermentation Engine</h2>
+                    <h2 class="text-xl font-bold text-accent border-b border-slate-700 pb-2">Fermentation Engine</h2>
                     
                     <div class="mt-4 space-y-4">
-                        <div>
-                            <label for="tempSlider" class="block text-sm font-medium text-slate-300">
-                                Ambient Kitchen Temperature: <span id="tempValue" class="font-bold text-accent">74</span>°F
-                            </label>
-                            <input id="tempSlider" type="range" min="65" max="85" value="74" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-amber-500 mt-2">
-                        </div>
-
-                        <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-2 text-sm">
+                        <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-3 text-sm">
                             <div class="flex justify-between">
                                 <span class="text-slate-400">Target Dough Temp (DT):</span>
                                 <span class="font-mono font-bold text-slate-200">76°F – 78°F</span>
@@ -112,7 +138,7 @@
                 </div>
 
                 <div class="bg-amber-500/10 border border-amber-500/30 p-3 rounded-lg text-xs text-amber-200">
-                    <strong>KitchenAid Safety Alert:</strong> Mix on Speed 2 for 3-4 mins, drizzle remaining 25g water slowly (bassinage), and stop at 5-7 mins total to prevent motor burnout. Rely on stretch-and-folds for final gluten structure.
+                    <strong>KitchenAid Safety Alert:</strong> Mix on Speed 2 for 3-4 mins, drizzle remaining water slowly (bassinage), and stop at 5-7 mins total to prevent motor burnout. Rely on stretch-and-folds for final gluten structure.
                 </div>
             </div>
 
@@ -120,53 +146,53 @@
 
         <!-- Step-by-Step Schedule & Visual Cues -->
         <div class="bg-cardbg p-6 rounded-xl border border-slate-700 shadow-lg space-y-6">
-            <h2 class="text-xl font-bold text-accent border-b border-slate-700 pb-2">Step-by-Step Schedule (Target: Saturday @ 5:00 PM)</h2>
+            <h2 class="text-xl font-bold text-accent border-b border-slate-700 pb-2">Step-by-Step Schedule & Visual Cues</h2>
 
             <div class="space-y-6 text-sm">
                 <!-- Step 0 -->
                 <div class="border-l-2 border-accent pl-4 space-y-2">
-                    <span class="text-xs uppercase tracking-wider text-accent font-bold">Thursday, 8:00 PM (36h Prior)</span>
-                    <h3 class="font-semibold text-base text-slate-200">Step 0: The Starter Refresh</h3>
-                    <p class="text-slate-300">Feed your refrigerated starter using your selected ratio (e.g., 1:5:5 uses 25g starter, 125g bread flour, 125g water) to tame acidity and prep robust yeast counts.</p>
-                    <p class="text-xs text-slate-400 italic"><strong>Visual Cue:</strong> Watch it, don't time it. Look for dome formation, bubbles throughout, and volume doubling/tripling. If peaking overnight, place in the fridge until Friday morning.</p>
+                    <span class="text-xs uppercase tracking-wider text-accent font-bold">Phase 0: Starter Refresh</span>
+                    <h3 class="font-semibold text-base text-slate-200">The Starter Refresh (Overnight Feed)</h3>
+                    <p class="text-slate-300">Feed your refrigerated starter using your selected ratio to tame acidity and prep robust yeast counts before building your levain.</p>
+                    <p class="text-xs text-slate-400 italic"><strong>Visual Cue:</strong> Watch it, don't time it. Look for dome formation, bubbles throughout, and volume doubling/tripling.</p>
                 </div>
 
                 <!-- Step 1 -->
                 <div class="border-l-2 border-accent pl-4 space-y-2">
-                    <span class="text-xs uppercase tracking-wider text-accent font-bold">Friday, 8:00 AM</span>
-                    <h3 class="font-semibold text-base text-slate-200">1. The Levain Build (With Buffer)</h3>
-                    <p class="text-slate-300">Combine 38g active fed starter, 77g bread flour, and 77g warm water (~85°F). Cover and ferment at room temp until doubled and bubbly (approx. 6–8 hours).</p>
+                    <span class="text-xs uppercase tracking-wider text-accent font-bold">Phase 1</span>
+                    <h3 class="font-semibold text-base text-slate-200">The Levain Build (Buffered)</h3>
+                    <p class="text-slate-300">Combine active fed starter, bread flour, and warm water (~85°F). Cover and ferment at room temp until doubled and bubbly (approx. 6–8 hours).</p>
                     <p class="text-xs text-slate-400 italic"><strong>Visual Cue:</strong> Look for a domed top, a frothy subsurface network of bubbles, and a sweet, pleasant aroma.</p>
                 </div>
 
                 <!-- Step 2 -->
                 <div class="border-l-2 border-accent pl-4 space-y-2">
-                    <span class="text-xs uppercase tracking-wider text-accent font-bold">Friday, 4:00 PM</span>
-                    <h3 class="font-semibold text-base text-slate-200">2. Autolyse, Mix & Stretch-and-Folds</h3>
-                    <p class="text-slate-300">Mix flours and 343g water (~72°F) for a 20-min autolyse. Add 162g levain and 18g salt. Mix on Speed 2, incorporating the 25g bassinage water.</p>
-                    <p class="text-slate-300">Perform <strong>3 sets of stretch and folds</strong> spaced 30 minutes apart (4:30 PM, 5:00 PM, 5:30 PM).</p>
+                    <span class="text-xs uppercase tracking-wider text-accent font-bold">Phase 2</span>
+                    <h3 class="font-semibold text-base text-slate-200">Autolyse, Mix & Stretch-and-Folds</h3>
+                    <p class="text-slate-300">Mix flours and initial water (~72°F) for a 20-min autolyse. Add levain and salt. Mix on Speed 2, incorporating remaining water via bassinage.</p>
+                    <p class="text-slate-300">Perform <strong>3 sets of stretch and folds</strong> spaced 30 minutes apart.</p>
                 </div>
 
                 <!-- Step 3 -->
                 <div class="border-l-2 border-accent pl-4 space-y-2">
-                    <span class="text-xs uppercase tracking-wider text-accent font-bold">Friday, 6:00 PM – 7:30 PM</span>
-                    <h3 class="font-semibold text-base text-slate-200">3. Short Warm Bulk Rise</h3>
+                    <span class="text-xs uppercase tracking-wider text-accent font-bold">Phase 3</span>
+                    <h3 class="font-semibold text-base text-slate-200">Short Warm Bulk Rise</h3>
                     <p class="text-slate-300">Let the dough rest covered at room temperature to initiate yeast activity before chilling.</p>
                     <p class="text-xs text-slate-400 italic"><strong>Visual Cue:</strong> Look for a modest <strong>20% to 30% volume increase</strong> and slight gas bubble formation. Do not wait for a full bulk rise.</p>
                 </div>
 
                 <!-- Step 4 -->
                 <div class="border-l-2 border-accent pl-4 space-y-2">
-                    <span class="text-xs uppercase tracking-wider text-accent font-bold">Friday, 7:30 PM</span>
-                    <h3 class="font-semibold text-base text-slate-200">4. Balling & Long Cold Ferment</h3>
-                    <p class="text-slate-300">Divide each batch into 3 portions (~381g each for 14" pies), tightly round into smooth balls, place in a sealed container/tray, and put straight into the fridge.</p>
+                    <span class="text-xs uppercase tracking-wider text-accent font-bold">Phase 4</span>
+                    <h3 class="font-semibold text-base text-slate-200">Balling & Long Cold Ferment</h3>
+                    <p class="text-slate-300">Divide dough into equal portions, tightly round into smooth balls, place in a sealed container/tray, and put straight into the fridge.</p>
                     <p class="text-xs text-slate-400 italic"><strong>Flexibility Note:</strong> This locks in a 1 to 4-day cold retard window. Bake anytime from Saturday through Tuesday!</p>
                 </div>
 
                 <!-- Step 5 -->
                 <div class="border-l-2 border-accent pl-4 space-y-2">
-                    <span class="text-xs uppercase tracking-wider text-accent font-bold">Saturday, 2:00 PM (3 Hours Before Bake)</span>
-                    <h3 class="font-semibold text-base text-slate-200">5. Counter Relax & Ooni Preheat</h3>
+                    <span class="text-xs uppercase tracking-wider text-accent font-bold">Phase 5</span>
+                    <h3 class="font-semibold text-base text-slate-200">Counter Relax & Ooni Preheat</h3>
                     <p class="text-slate-300">Pull dough balls from the fridge 2–3 hours prior to baking to relax and warm up. Fire up your Ooni oven on high for **30–45 minutes** to reach 750°F–850°F on the stone center.</p>
                 </div>
             </div>
@@ -175,14 +201,71 @@
     </div>
 
     <script>
-        // Interactive temperature slider logic
-        const slider = document.getElementById('tempSlider');
-        const tempValue = document.getElementById('tempValue');
-        const bulkEstimate = document.getElementById('bulkEstimate');
+        // Dynamic Calculator Engine
+        const inputQty = document.getElementById('inputQty');
+        const selectBallWeight = document.getElementById('selectBallWeight');
+        const selectBuffer = document.getElementById('selectBuffer');
+        const inputHydration = document.getElementById('inputHydration');
+        const inputTemp = document.getElementById('inputTemp');
+        const feedRatioSelect = document.getElementById('feedRatioSelect');
 
-        slider.addEventListener('input', (e) => {
-            const temp = parseInt(e.target.value);
-            tempValue.textContent = temp;
+        function calculateRecipe() {
+            const qty = parseInt(inputQty.value) || 3;
+            const ballWt = parseInt(selectBallWeight.value) || 340;
+            const buffer = parseFloat(selectBuffer.value) || 0.10;
+            const hydration = parseFloat(inputHydration.value) / 100 || 0.62;
+            const temp = parseInt(inputTemp.value) || 74;
+
+            // Total target dough weight with buffer
+            const baseDoughTotal = qty * ballWt;
+            const bufferedDoughTotal = baseDoughTotal * (1 + buffer);
+
+            // Flour / Water / Salt ratios based on your standard mix
+            // Type 00: ~89.8%, WW: ~10.2%, Salt: ~3.0%, Levain: ~25%
+            const totalFlour = bufferedDoughTotal / (1 + hydration + 0.03 + 0.25);
+            const flour00 = Math.round(totalFlour * 0.898);
+            const flourWW = Math.round(totalFlour * 0.102);
+            const combinedFlour = flour00 + flourWW;
+            const totalWater = Math.round(combinedFlour * hydration);
+            const salt = Math.round(combinedFlour * 0.03);
+            
+            // Levain calculation with waste buffer applied
+            const baseLevainNeeded = combinedFlour * 0.25;
+            const bufferedLevain = Math.round(baseLevainNeeded * (1 + buffer));
+            
+            // Levain component breakdown (1:1:1 ratio structure inside build)
+            const levStarter = Math.round(bufferedLevain / 3);
+            const levFlour = Math.round(bufferedLevain / 3);
+            const levWater = Math.round(bufferedLevain / 3);
+
+            // Update UI Recipe Fields
+            document.getElementById('headerSummary').textContent = `Target: ${qty}x ${ballWt}g Pizzas | 1-4 Day Cold Ferment`;
+            document.getElementById('recipe00').textContent = flour00 + 'g';
+            document.getElementById('recipeWW').textContent = flourWW + 'g';
+            document.getElementById('recipeWater').textContent = totalWater + 'g';
+            document.getElementById('recipeLevain').textContent = bufferedLevain + 'g';
+            document.getElementById('recipeSalt').textContent = salt + 'g';
+
+            document.getElementById('levStarter').textContent = levStarter + 'g';
+            document.getElementById('levFlour').textContent = levFlour + 'g';
+            document.getElementById('levWater').textContent = levWater + 'g';
+            document.getElementById('levainNote').textContent = `Scaled with ${(buffer * 100)}% waste buffer applied to levain and dough.`;
+
+            // Starter Refresh (Step 0) calculation based on selected ratio
+            const ratio = feedRatioSelect.value;
+            let refS = 25, refF = 125, refW = 125;
+            if (ratio === '1:1:1') { refS = 30; refF = 30; refW = 30; }
+            else if (ratio === '1:2:2') { refS = 25; refF = 50; refW = 50; }
+            else if (ratio === '1:3:3') { refS = 25; refF = 75; refW = 75; }
+            else if (ratio === '1:4:4') { refS = 25; refF = 100; refW = 100; }
+            else if (ratio === '1:1:5') { refS = 25; refF = 125; refW = 125; }
+
+            document.getElementById('refStarter').textContent = refS + 'g';
+            document.getElementById('refFlour').textContent = refF + 'g';
+            document.getElementById('refWater').textContent = refW + 'g';
+
+            // Bulk estimate dynamic update
+            const bulkEstimate = document.getElementById('bulkEstimate');
             if (temp <= 68) {
                 bulkEstimate.textContent = "2.0 – 2.5 Hours";
             } else if (temp >= 78) {
@@ -190,36 +273,16 @@
             } else {
                 bulkEstimate.textContent = "1.5 Hours";
             }
+        }
+
+        // Event Listeners
+        [inputQty, selectBallWeight, selectBuffer, inputHydration, inputTemp, feedRatioSelect].forEach(el => {
+            el.addEventListener('input', calculateRecipe);
+            el.addEventListener('change', calculateRecipe);
         });
 
-        // Dynamic Step 0 Starter Refresh Calculator based on ratio selection
-        const feedRatioSelect = document.getElementById('feedRatioSelect');
-        const refStarter = document.getElementById('refStarter');
-        const refFlour = document.getElementById('refFlour');
-        const refWater = document.getElementById('refWater');
-
-        feedRatioSelect.addEventListener('change', (e) => {
-            const ratio = e.target.value;
-            let starterAmt = 25;
-            let flourAmt = 125;
-            let waterAmt = 125;
-
-            if (ratio === '1:1:1') {
-                starterAmt = 30; flourAmt = 30; waterAmt = 30;
-            } else if (ratio === '1:2:2') {
-                starterAmt = 25; flourAmt = 50; waterAmt = 50;
-            } else if (ratio === '1:3:3') {
-                starterAmt = 25; flourAmt = 75; waterAmt = 75;
-            } else if (ratio === '1:4:4') {
-                starterAmt = 25; flourAmt = 100; waterAmt = 100;
-            } else if (ratio === '1:5:5') {
-                starterAmt = 25; flourAmt = 125; waterAmt = 125;
-            }
-
-            refStarter.textContent = starterAmt + 'g';
-            refFlour.textContent = flourAmt + 'g';
-            refWater.textContent = waterAmt + 'g';
-        });
+        // Initial run
+        calculateRecipe();
     </script>
 </body>
 </html>
