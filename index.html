@@ -349,7 +349,6 @@ function update() {
     else if (ratio === '1:4:4') { refS = 25; refTotalFlour = 100; refPeakHours = 11; }
     else if (ratio === '1:1:5') { refS = 25; refTotalFlour = 125; refPeakHours = 13; }
 
-    // Pro recommended 80% bread flour / 20% whole wheat split for feeding
     const refBreadFlour = Math.round(refTotalFlour * 0.80);
     const refWWFlour = Math.round(refTotalFlour * 0.20);
     const refWaterAmt = refTotalFlour;
@@ -369,9 +368,7 @@ function update() {
     const fWW = (totalFlour * 0.05).toFixed(0);
     const salt = (totalFlour * 0.03).toFixed(0);
     
-    // Room temperature water default (~70°F) for main dough build
     const initialWaterTemp = 70;
-
     const waterInitial = ((totalFlour * hydro) - 40).toFixed(0);
 
     const ingredients = [
@@ -405,8 +402,8 @@ function update() {
     document.getElementById('autolyseNote').innerHTML = `<strong>KitchenAid Mixing & Scraping:</strong> Using the paddle or dough hook attachment on <span class="highlight">Speed 1</span>, mix for 2 to 3 minutes just until all dry flour is absorbed into a shaggy, wet mass. <strong>Scrape down the sides and bottom</strong> of the bowl with a silicone spatula to ensure no dry flour pockets remain. Cover and let autolyse/rest for <span class="highlight">30 minutes</span>.`;
     
     document.getElementById('methodText').innerHTML = method === 'kitchenaid' ? 
-        `<p>Add <span class="ingredient-highlight">${salt}g sea salt</span> and the <span class="ingredient-highlight">40g reserve water (${initialWaterTemp}°F)</span> over the rested dough. Switch to the dough hook. Mix on <span class="highlight">Speed 2</span> for <span class="highlight">5 to 6 minutes</span>. Periodically pause to scrape down the sides if dough climbs the hook. Slowly drizzle in reserve water if needed. Stop mixing as soon as the dough wraps around the hook and cleans the sides of the bowl.</p>` : 
-        `<p>Pinch in <span class="ingredient-highlight">${salt}g sea salt</span> and remaining <span class="ingredient-highlight">40g water (${initialWaterTemp}°F)</span>. Perform slap-and-folds for <span class="highlight">8 minutes</span> until smooth.</p>`;
+        `<p>Sprinkle <span class="ingredient-highlight">${salt}g sea salt</span> over the rested dough and drizzle the <span class="ingredient-highlight">40g reserve water (${initialWaterTemp}°F)</span> down the side of the bowl (bassinage). Switch to the dough hook. Mix on <span class="highlight">Speed 2</span> for <span class="highlight">5 to 6 minutes</span>. Periodically pause to scrape down the sides if dough climbs the hook. Stop mixing as soon as the dough wraps around the hook and cleans the sides of the bowl.</p>` : 
+        `<p>Pinch in <span class="ingredient-highlight">${salt}g sea salt</span> and slowly incorporate the remaining <span class="ingredient-highlight">40g water (${initialWaterTemp}°F)</span>. Perform slap-and-folds for <span class="highlight">8 minutes</span> until smooth.</p>`;
     
     document.getElementById('mixTempNote').innerHTML = `<strong>Target Dough Temperature:</strong> Aim for <span class="highlight">76°F – 78°F</span> (sweet spot: <span class="highlight">77°F</span>) immediately after mixing. This temperature is the most forgiving for multi-day cold fermentation, preventing premature over-fermentation while maintaining steady enzyme activity.`;
 
