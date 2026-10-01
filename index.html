@@ -162,23 +162,23 @@
             <div class="control-group">
                 <label>Weight per Ball</label>
                 <select id="sizeSelect" onchange="update()">
-                    <option value="280">280g (12")</option>
-                    <option value="340" selected>340g (14")</option>
-                    <option value="480">480g (16" Large)</option>
+                    <option value="240">240g (12")</option>
+                    <option value="340" selected>340g (14" Standard)</option>
+                    <option value="420">420g (16" Large)</option>
                 </select>
             </div>
             <div class="control-group">
                 <label>Waste Buffer</label>
                 <select id="buffer" onchange="update()">
                     <option value="1.0">0%</option>
-                    <option value="1.05" selected>5%</option>
-                    <option value="1.10">10%</option>
+                    <option value="1.05">5%</option>
+                    <option value="1.10" selected>10%</option>
                     <option value="1.15">15%</option>
                 </select>
             </div>
             <div class="control-group">
                 <label>Hydration (%)</label>
-                <input type="number" id="hydro" value="62" oninput="update()">
+                <input type="number" id="hydro" value="63" oninput="update()">
             </div>
             <div class="control-group">
                 <label>Ambient Temp (°F)</label>
@@ -187,7 +187,7 @@
             <div class="control-group">
                 <label>Mix Method</label>
                 <select id="mixMethod" onchange="update()">
-                    <option value="kitchenaid">KitchenAid</option>
+                    <option value="kitchenaid" selected>KitchenAid</option>
                     <option value="hand">Hand Mix</option>
                 </select>
                 <div id="batchAlert" class="batch-alert">KitchenAid Capacity Exceeded: Batching Applied</div>
@@ -312,8 +312,8 @@ function update() {
     const startMins = parseInt(document.getElementById('timeSlider').value);
     const qty = parseFloat(document.getElementById('qty').value) || 0;
     const size = parseFloat(document.getElementById('sizeSelect').value) || 340;
-    const buffer = parseFloat(document.getElementById('buffer').value) || 1.05;
-    const hydro = (parseFloat(document.getElementById('hydro').value) || 62) / 100;
+    const buffer = parseFloat(document.getElementById('buffer').value) || 1.10;
+    const hydro = (parseFloat(document.getElementById('hydro').value) || 63) / 100;
     const temp = parseFloat(document.getElementById('temp').value) || 74;
     const method = document.getElementById('mixMethod').value;
     const ratio = document.getElementById('feedRatioSelect').value;
@@ -353,7 +353,6 @@ function update() {
         <tr><td>Feed Flour (Bread/WW)</td><td class="val">${refF}g</td></tr>
         <tr><td>Water</td><td class="val">${refW}g</td></tr>`;
 
-    // Dynamic temperature calculation for starter refresh water
     let refreshWaterTemp = temp > 76 ? 70 : (temp < 70 ? 82 : 76);
 
     document.getElementById('refreshProse').innerHTML = `Feed refrigerated starter with <span class="ingredient-highlight">${refS}g starter</span>, <span class="ingredient-highlight">${refF}g feed flour</span>, and <span class="ingredient-highlight">${refW}g water</span> at <span class="highlight">${refreshWaterTemp}°F</span> using ratio <span class="highlight">${ratio}</span>.`;
@@ -363,8 +362,6 @@ function update() {
     const fWW = (totalFlour * 0.05).toFixed(0);
     const salt = (totalFlour * 0.03).toFixed(0);
     
-    // Water temperature calculation for initial mix targeting final DT of 76°F-78°F
-    // Formula approximation: Water Temp = (Target DT * 3) - Room Temp - Flour Temp
     const targetDT = 77;
     let initialWaterTemp = Math.round((targetDT * 3) - temp - temp);
     if (initialWaterTemp < 65) initialWaterTemp = 65;
