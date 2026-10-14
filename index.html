@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>PIZZA PARTY // Sourdough Logic v1.3</title>
+    <title>PIZZA PARTY // Sourdough Logic v2.0</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Comic+Neue:wght@700&display=swap');
 
@@ -48,6 +48,13 @@
             color: var(--text-muted); 
             font-weight: 500;
             display: block;
+        }
+
+        .credit {
+            margin-top: 12px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-style: italic;
         }
 
         .dashboard {
@@ -151,13 +158,14 @@
     <header>
         <img src="pizzapartylogo.png" alt="PIZZA PARTY" class="header-logo">
         <div class="subtitle">Sourdough Pizza Dough Calculator</div>
+        <div class="credit">Overnight Pizza Dough with Levain — adapted from <em>Flour Water Salt Yeast</em>, mixed by KitchenAid</div>
     </header>
 
     <div class="dashboard">
         <div class="input-grid">
             <div class="control-group">
                 <label>Quantity</label>
-                <input type="number" id="qty" value="3" oninput="update()">
+                <input type="number" id="qty" value="5" oninput="update()">
             </div>
             <div class="control-group">
                 <label>Weight per Ball</label>
@@ -178,7 +186,7 @@
             </div>
             <div class="control-group">
                 <label>Hydration (%)</label>
-                <input type="number" id="hydro" value="63" oninput="update()">
+                <input type="number" id="hydro" value="70" oninput="update()">
             </div>
             <div class="control-group">
                 <label>Ambient Temp (°F)</label>
@@ -222,7 +230,7 @@
                 <tbody id="refreshBody"></tbody>
             </table>
             <table>
-                <thead><tr><th>Levain</th><th style="text-align:right">Mass</th></tr></thead>
+                <thead><tr><th>Levain Build (1a)</th><th style="text-align:right">Mass</th></tr></thead>
                 <tbody id="levainBody"></tbody>
             </table>
             <table>
@@ -251,7 +259,7 @@
 
             <div class="step">
                 <div class="step-head">
-                    <span class="step-title">1. Build Levain</span>
+                    <span class="step-title">1a. Feed the Levain</span>
                     <span class="timestamp" id="t0"></span>
                 </div>
                 <p id="levainProse"></p>
@@ -260,7 +268,7 @@
 
             <div class="step">
                 <div class="step-head">
-                    <span class="step-title">2. Autolyse</span>
+                    <span class="step-title">1b. Autolyse</span>
                     <span class="timestamp" id="t1"></span>
                 </div>
                 <p id="autolyseText"></p>
@@ -269,7 +277,7 @@
 
             <div class="step">
                 <div class="step-head">
-                    <span class="step-title">3. Final Mix & Strengthening</span>
+                    <span class="step-title">2. Final Mix</span>
                     <span class="timestamp" id="t2"></span>
                 </div>
                 <div id="methodText"></div>
@@ -278,7 +286,7 @@
 
             <div class="step">
                 <div class="step-head">
-                    <span class="step-title">4. Bulk Ferment</span>
+                    <span class="step-title">3. Bulk Ferment</span>
                     <span class="timestamp" id="t3"></span>
                 </div>
                 <p id="bulkProse"></p>
@@ -287,10 +295,11 @@
 
             <div class="step">
                 <div class="step-head">
-                    <span class="step-title">5. Degas, Ball & Cold Ferment</span>
+                    <span class="step-title">4. Divide, Ball & Cold Proof</span>
                     <span class="timestamp" id="t4"></span>
                 </div>
                 <p id="ballProse"></p>
+                <div class="note" id="scheduleNote"></div>
             </div>
         </div>
     </div>
@@ -313,7 +322,7 @@ function update() {
     const qty = parseFloat(document.getElementById('qty').value) || 0;
     const size = parseFloat(document.getElementById('sizeSelect').value) || 340;
     const buffer = parseFloat(document.getElementById('buffer').value) || 1.10;
-    const hydro = (parseFloat(document.getElementById('hydro').value) || 63) / 100;
+    const hydro = (parseFloat(document.getElementById('hydro').value) || 70) / 100;
     const temp = parseFloat(document.getElementById('temp').value) || 74;
     const method = document.getElementById('mixMethod').value;
     const ratio = document.getElementById('feedRatioSelect').value;
@@ -326,21 +335,26 @@ function update() {
     document.getElementById('batchHead').style.display = isOver ? 'table-cell' : 'none';
     document.getElementById('batchAlert').style.display = isOver ? 'block' : 'none';
 
-    // Flour proportions: 95% Type 00, 5% Whole Wheat, 3% Salt, ~25% Levain
-    const totalFlour = totalDough / (1 + hydro + 0.28); 
-    
-    const exactLevainNeeded = totalFlour * 0.25;
-    const levainTotal = exactLevainNeeded + 30;
+    // Forkish "Overnight Pizza Dough with Levain" baker's percentages (of total flour):
+    // white flour 98%, whole wheat 2%, water = hydration (70% in the book),
+    // fine sea salt 2%, ripe levain 18% (180g per 1000g flour)
+    const totalFlour = totalDough / (1 + hydro + 0.02 + 0.18);
 
-    const lS = (levainTotal * (1 / 5)).toFixed(0);
-    const lF = (levainTotal * (2 / 5)).toFixed(0);
-    const lW = (levainTotal * (2 / 5)).toFixed(0);
-    
-    let levainWaterTemp = temp > 76 ? 78 : 84;
+    const levainNeeded = totalFlour * 0.18;
+    const levainBuild = levainNeeded + 50; // extra keeps the culture going
+
+    // Book's levain feed ratio: 50 seed : 200 white : 50 whole wheat : 200 water (1:4:1:4)
+    const bSeed = levainBuild / 10;
+    const bWhite = bSeed * 4;
+    const bWW = bSeed;
+    const bWater = bSeed * 4;
+
+    const levainWaterTemp = temp > 76 ? 85 : 90; // book: 85-90°F
     document.getElementById('levainBody').innerHTML = `
-        <tr><td>Starter</td><td class="val">${lS}g</td></tr>
-        <tr><td>Bread Flour</td><td class="val">${lF}g</td></tr>
-        <tr><td>Water (${levainWaterTemp}°F)</td><td class="val">${lW}g</td></tr>`;
+        <tr><td>Mature Starter</td><td class="val">${bSeed.toFixed(0)}g</td></tr>
+        <tr><td>White Flour</td><td class="val">${bWhite.toFixed(0)}g</td></tr>
+        <tr><td>Whole Wheat Flour</td><td class="val">${bWW.toFixed(0)}g</td></tr>
+        <tr><td>Water (${levainWaterTemp}°F)</td><td class="val">${bWater.toFixed(0)}g</td></tr>`;
 
     let refS = 25, refTotalFlour = 125, refPeakHours = 13;
     if (ratio === '1:1:1') { refS = 30; refTotalFlour = 30; refPeakHours = 5; }
@@ -361,23 +375,21 @@ function update() {
         <tr><td>Whole Wheat (20%)</td><td class="val">${refWWFlour}g</td></tr>
         <tr><td>Water (${refreshWaterTemp}°F)</td><td class="val">${refWaterAmt}g</td></tr>`;
 
-    document.getElementById('refreshProse').innerHTML = `Feed refrigerated starter with <span class="ingredient-highlight">${refS}g starter</span>, <span class="ingredient-highlight">${refBreadFlour}g bread flour</span>, <span class="ingredient-highlight">${refWWFlour}g whole wheat</span>, and <span class="ingredient-highlight">${refWaterAmt}g water (${refreshWaterTemp}°F)</span> using ratio <span class="highlight">${ratio}</span>.`;
+    document.getElementById('refreshProse').innerHTML = `The night before, feed your refrigerated starter with <span class="ingredient-highlight">${refS}g starter</span>, <span class="ingredient-highlight">${refBreadFlour}g bread flour</span>, <span class="ingredient-highlight">${refWWFlour}g whole wheat</span>, and <span class="ingredient-highlight">${refWaterAmt}g water (${refreshWaterTemp}°F)</span> using ratio <span class="highlight">${ratio}</span>.`;
     document.getElementById('refreshTimingNote').innerText = `Approximate time to peak at ${temp}°F: ~${refPeakHours}-${refPeakHours+2} hours. Watch for a domed top, airy bubbles, and doubling/tripling in volume.`;
 
-    const f00 = (totalFlour * 0.95).toFixed(0);
-    const fWW = (totalFlour * 0.05).toFixed(0);
-    const salt = (totalFlour * 0.03).toFixed(0);
-    
-    const initialWaterTemp = 70;
-    const waterInitial = ((totalFlour * hydro) - 40).toFixed(0);
+    const fWhite = (totalFlour * 0.98).toFixed(0);
+    const fWW = (totalFlour * 0.02).toFixed(0);
+    const salt = (totalFlour * 0.02).toFixed(0);
+    const waterAll = (totalFlour * hydro).toFixed(0);
+    const autolyseWaterTemp = temp > 76 ? 90 : 95; // book: 90-95°F
 
     const ingredients = [
-        { n: '"00" Flour (95%)', v: f00 },
-        { n: 'Whole Wheat (5%)', v: fWW },
-        { n: 'Water (' + initialWaterTemp + '°F)', v: waterInitial },
-        { n: 'Active Levain', v: exactLevainNeeded.toFixed(0) },
-        { n: 'Sea Salt (3%)', v: salt },
-        { n: 'Water Reserve (' + initialWaterTemp + '°F)', v: "40" }
+        { n: '"00" White Flour (98%)', v: fWhite },
+        { n: 'Whole Wheat Flour (2%)', v: fWW },
+        { n: 'Water (' + autolyseWaterTemp + '°F)', v: waterAll },
+        { n: 'Ripe Levain', v: levainNeeded.toFixed(0) },
+        { n: 'Fine Sea Salt (2%)', v: salt }
     ];
 
     document.getElementById('doughBody').innerHTML = ingredients.map(i => `
@@ -395,22 +407,23 @@ function update() {
     document.getElementById('t3').innerText = getTimeFromMins(startMins + levainWaitMins + 45);
     document.getElementById('t4').innerText = getTimeFromMins(startMins + levainWaitMins + bulkMins);
 
-    document.getElementById('levainProse').innerHTML = `Mix <span class="ingredient-highlight">${lS}g starter</span>, <span class="ingredient-highlight">${lF}g bread flour</span>, and <span class="ingredient-highlight">${lW}g water (${levainWaterTemp}°F)</span> in a 1:2:2 ratio.`;
-    document.getElementById('levainWaitNote').innerHTML = `Ready in approx <span class="highlight">${Math.floor(levainWaitHours)}h ${Math.round((levainWaitHours % 1) * 60)}m</span>. <br><strong>Visual Cues:</strong> Peak activity shows a heavily domed surface, a network of bubbles visible through the jar walls, and a light, airy, frothy texture that smells pleasantly sweet and slightly yeasty. Use <span class="ingredient-highlight">${exactLevainNeeded.toFixed(0)}g</span> for the dough and save ~30g for your fridge seed!`;
-    
-    document.getElementById('autolyseText').innerHTML = `In your KitchenAid bowl, combine <span class="ingredient-highlight">${f00}g "00" flour</span>, <span class="ingredient-highlight">${fWW}g whole wheat</span>, <span class="ingredient-highlight">${exactLevainNeeded.toFixed(0)}g active levain</span>, and <span class="ingredient-highlight">${waterInitial}g initial water (${initialWaterTemp}°F)</span>.`;
-    document.getElementById('autolyseNote').innerHTML = `<strong>KitchenAid Mixing & Scraping:</strong> Using the paddle or dough hook attachment on <span class="highlight">Speed 1</span>, mix for 2 to 3 minutes just until all dry flour is absorbed into a shaggy, wet mass. <strong>Scrape down the sides and bottom</strong> of the bowl with a silicone spatula to ensure no dry flour pockets remain. Cover and let autolyse/rest for <span class="highlight">30 minutes</span>.`;
-    
-    document.getElementById('methodText').innerHTML = method === 'kitchenaid' ? 
-        `<p>Sprinkle <span class="ingredient-highlight">${salt}g sea salt</span> over the rested dough and drizzle the <span class="ingredient-highlight">40g reserve water (${initialWaterTemp}°F)</span> down the side of the bowl (bassinage). Switch to the dough hook. Mix on <span class="highlight">Speed 2</span> for <span class="highlight">5 to 6 minutes</span>. Periodically pause to scrape down the sides if dough climbs the hook. Stop mixing as soon as the dough wraps around the hook and cleans the sides of the bowl.</p>` : 
-        `<p>Pinch in <span class="ingredient-highlight">${salt}g sea salt</span> and slowly incorporate the remaining <span class="ingredient-highlight">40g water (${initialWaterTemp}°F)</span>. Perform slap-and-folds for <span class="highlight">8 minutes</span> until smooth.</p>`;
-    
-    document.getElementById('mixTempNote').innerHTML = `<strong>Target Dough Temperature:</strong> Aim for <span class="highlight">76°F – 78°F</span> (sweet spot: <span class="highlight">77°F</span>) immediately after mixing. This temperature is the most forgiving for multi-day cold fermentation, preventing premature over-fermentation while maintaining steady enzyme activity.`;
+    document.getElementById('levainProse').innerHTML = `Discard all but <span class="ingredient-highlight">${bSeed.toFixed(0)}g of mature starter</span>, leaving it in your tub. Add <span class="ingredient-highlight">${bWhite.toFixed(0)}g white flour</span>, <span class="ingredient-highlight">${bWW.toFixed(0)}g whole wheat flour</span>, and <span class="ingredient-highlight">${bWater.toFixed(0)}g water (${levainWaterTemp}°F)</span> — the book's 1:4:1:4 feed. Mix with the dough hook on <span class="highlight">Speed 1</span> for about a minute, just until incorporated. Cover and rest at room temperature.`;
+    document.getElementById('levainWaitNote').innerHTML = `Ready in approx <span class="highlight">${Math.floor(levainWaitHours)}h ${Math.round((levainWaitHours % 1) * 60)}m</span> at ${temp}°F (the book rests it 8-10 hours). <br><strong>Visual Cues:</strong> domed surface, bubbles through the tub walls, light and airy. Use <span class="ingredient-highlight">${levainNeeded.toFixed(0)}g</span> for the dough and keep the rest as your fridge seed!`;
 
-    document.getElementById('bulkProse').innerHTML = `Perform <span class="highlight">3 sets of stretch-and-folds</span> spaced <span class="highlight">30 minutes apart</span> during the first 1.5 hours of bulk fermentation. Grab the underside of the dough, stretch it gently upward until taut without tearing, and fold it over the top. Rotate the container 90 degrees and repeat 4 times per set.`;
-    document.getElementById('timingNote').innerHTML = `Total bulk estimated at <span class="highlight">${Math.floor(bulkHours)}h ${Math.round((bulkHours % 1) * 60)}m</span> at ${temp}°F.<br><strong>Visual Cues to End Bulk:</strong> Look for a <span class="highlight">30% to 50% volume increase</span>, a pillowy and jiggly consistency, and prominent gas bubbles trapped underneath and along the sides of your straight-sided container before moving to balling.`;
-    
-    document.getElementById('ballProse').innerHTML = `<strong>How to Degas:</strong> Gently tip your bulk fermented dough out onto a lightly floured work surface. Press your fingertips lightly across the dough surface to release large, trapped gas pockets while preserving its overall airy structure.<br>Divide into balls of exactly <span class="highlight">${size}g</span> using a bench knife. Tightly round each portion into a smooth, taut ball by pulling it toward you against the un-floured counter. Place into oiled dough trays or individual containers, seal airtight, and place immediately into the fridge for your <span class="highlight">1 to 4-day cold ferment window</span>.`;
+    document.getElementById('autolyseText').innerHTML = `In the KitchenAid bowl, combine <span class="ingredient-highlight">${fWhite}g "00" white flour</span> and <span class="ingredient-highlight">${waterAll}g water (${autolyseWaterTemp}°F)</span>.`;
+    document.getElementById('autolyseNote').innerHTML = `<strong>KitchenAid autolyse:</strong> Fit the paddle or dough hook and run on <span class="highlight">Speed 1</span> for 1 to 2 minutes, just until all dry flour is absorbed into a shaggy mass. Scrape down the sides and bottom. Cover and rest <span class="highlight">20 to 30 minutes</span>.`;
+
+    document.getElementById('methodText').innerHTML = method === 'kitchenaid' ?
+        `<p>Sprinkle <span class="ingredient-highlight">${salt}g fine sea salt</span> over the rested dough and add <span class="ingredient-highlight">${levainNeeded.toFixed(0)}g ripe levain</span>. Fit the dough hook. Mix on <span class="highlight">Speed 1</span> for 2 to 3 minutes until the levain and salt are worked in, then <span class="highlight">Speed 2</span> for 4 to 6 minutes, until the dough is smooth, pulls away from the sides of the bowl, and wraps around the hook. If it climbs the hook, stop and push it back down. Stop as soon as it clears the bowl — don't chase extra minutes. If your mixer runs warm, use the cool end of the water range above.</p>` :
+        `<p>Transfer <span class="ingredient-highlight">${levainNeeded.toFixed(0)}g ripe levain</span> to the tub and sprinkle <span class="ingredient-highlight">${salt}g fine sea salt</span> over the dough. With a wet hand, mix to enclose the salt and levain: gently pick the dough up from underneath and stretch it in three or four folds, alternating with the pincer method to fully integrate. Cut and fold, cut and fold, until everything is evenly incorporated.</p>`;
+
+    document.getElementById('mixTempNote').innerHTML = `<strong>Target Dough Temperature:</strong> <span class="highlight">77°F – 78°F</span> at the end of the mix. Take it with a thermometer — if you're over, shorten the Speed 2 time or start with cooler water next bake.`;
+
+    document.getElementById('bulkProse').innerHTML = `This dough needs <span class="highlight">one or two folds</span>. Make the first fold <span class="highlight">30 to 60 minutes</span> after mixing: grab the underside of the dough, stretch gently upward without tearing, and fold over the top; rotate and repeat around the tub. After the final fold, lightly coat the dough and the tub with olive oil to prevent sticking.`;
+    document.getElementById('timingNote').innerHTML = `Calculator estimate: <span class="highlight">${Math.floor(bulkHours)}h ${Math.round((bulkHours % 1) * 60)}m</span> at ${temp}°F.<br><strong>The book's cues rule:</strong> bulk is done when the dough is <span class="highlight">2 to 2½ times its original volume</span> — about <span class="highlight">12 to 14 hours after mixing</span>. Judge the dough, not the clock.`;
+
+    document.getElementById('ballProse').innerHTML = `Lightly flour a work surface about 2 feet wide. With floured hands, gently ease the dough out of the tub. Dust the top with flour and cut into <span class="highlight">${qty}</span> equal pieces of about <span class="highlight">${size}g</span> each${size > 300 ? '' : ' (book note: use ~200g pieces for any dough destined for thick-crust iron-skillet pizza or focaccia)'}. Shape each piece into a <span class="highlight">medium-tight round</span>, working gently and being careful not to degas the dough. Place the balls on a lightly floured or oiled baking sheet with space between them, cover, and <span class="highlight">refrigerate at least 6 hours</span> before baking. Tightly covered, leftover dough keeps 2 or 3 days in the fridge — the book says you'll likely prefer the next-day dough as flavors develop.`;
+    document.getElementById('scheduleNote').innerHTML = `<strong>Book's sample schedule:</strong> feed the levain in the morning, mix the dough at 7 p.m., shape into dough balls at 7 a.m. the next morning, and make pizza after 1 p.m. — or anytime over the next 2 days.`;
 }
 
 update();
