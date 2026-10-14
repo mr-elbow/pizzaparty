@@ -243,6 +243,7 @@
                 </thead>
                 <tbody id="doughBody"></tbody>
             </table>
+            <div class="note" id="doughBatchNote" style="margin-bottom: 30px;"></div>
         </div>
 
         <div class="card">
@@ -329,19 +330,26 @@ function update() {
 
     document.getElementById('clockDisplay').innerText = getTimeFromMins(startMins);
 
-    // Main dough mass with waste buffer applied
-    const totalDough = (qty * size) * buffer;
-    const isOver = (method === 'kitchenaid' && totalDough > 1200);
+    // Forkish "Overnight Pizza Dough with Levain" — the book's final-dough mix
+    // per 1720g batch: 900g white flour, 620g water (70% hydration),
+    // 20g fine sea salt, 180g ripe levain.
+    // (The book calls this "five 340-gram balls" — the batch actually weighs
+    // 1720g, i.e. five 344g balls. Quantity / ball size / buffer scale the batch.)
+    const scale = (qty / 5) * (size / 340) * buffer;
+    const batchDough = 1720 * scale;
+    const isOver = (method === 'kitchenaid' && batchDough > 1200);
     document.getElementById('batchHead').style.display = isOver ? 'table-cell' : 'none';
     document.getElementById('batchAlert').style.display = isOver ? 'block' : 'none';
 
-    // Forkish "Overnight Pizza Dough with Levain" baker's percentages (of total flour):
-    // white flour 98%, whole wheat 2%, water = hydration (70% in the book),
-    // fine sea salt 2%, ripe levain 18% (180g per 1000g flour)
-    const totalFlour = totalDough / (1 + hydro + 0.02 + 0.18);
-
-    const levainNeeded = totalFlour * 0.18;
-    const levainBuild = levainNeeded + 50; // extra keeps the culture going
+    // Forkish "Overnight Pizza Dough with Levain" baker's formula, scaled from
+    // the book's 1720g batch: 900g white, 620g water @70% hydration,
+    // 20g fine sea salt, 180g ripe levain. (Whole wheat lives in the levain
+    // build — the book's final dough mix has none.)
+    const levainNeeded = 180 * scale;
+    // The book's levain build doubles as the culture feed: 50/200/50/200
+    // (1:4:1:4), 500g per batch — take what the dough needs, the rest keeps
+    // the culture going.
+    const levainBuild = 500 * scale;
 
     // Book's levain feed ratio: 50 seed : 200 white : 50 whole wheat : 200 water (1:4:1:4)
     const bSeed = levainBuild / 10;
@@ -378,23 +386,24 @@ function update() {
     document.getElementById('refreshProse').innerHTML = `The night before, feed your refrigerated starter with <span class="ingredient-highlight">${refS}g starter</span>, <span class="ingredient-highlight">${refBreadFlour}g bread flour</span>, <span class="ingredient-highlight">${refWWFlour}g whole wheat</span>, and <span class="ingredient-highlight">${refWaterAmt}g water (${refreshWaterTemp}°F)</span> using ratio <span class="highlight">${ratio}</span>.`;
     document.getElementById('refreshTimingNote').innerText = `Approximate time to peak at ${temp}°F: ~${refPeakHours}-${refPeakHours+2} hours. Watch for a domed top, airy bubbles, and doubling/tripling in volume.`;
 
-    const fWhite = (totalFlour * 0.98).toFixed(0);
-    const fWW = (totalFlour * 0.02).toFixed(0);
-    const salt = (totalFlour * 0.02).toFixed(0);
-    const waterAll = (totalFlour * hydro).toFixed(0);
+    const fWhite = (900 * scale).toFixed(0);
+    const salt = (20 * scale).toFixed(0);
+    const waterAll = (620 * scale * (hydro / 0.70)).toFixed(0);
     const autolyseWaterTemp = temp > 76 ? 90 : 95; // book: 90-95°F
 
     const ingredients = [
-        { n: '"00" White Flour (98%)', v: fWhite },
-        { n: 'Whole Wheat Flour (2%)', v: fWW },
+        { n: '"00" White Flour', v: fWhite },
         { n: 'Water (' + autolyseWaterTemp + '°F)', v: waterAll },
         { n: 'Ripe Levain', v: levainNeeded.toFixed(0) },
-        { n: 'Fine Sea Salt (2%)', v: salt }
+        { n: 'Fine Sea Salt', v: salt }
     ];
 
     document.getElementById('doughBody').innerHTML = ingredients.map(i => `
         <tr><td>${i.n}</td><td class="val">${i.v}g</td>
         ${isOver ? `<td class="batch-val">${(i.v/2).toFixed(0)}g</td>` : ''}</tr>`).join('');
+
+    const perBall = qty > 0 ? ((1720 * scale) / qty).toFixed(0) : size;
+    document.getElementById('doughBatchNote').innerHTML = `The book's batch weighs <span class="highlight">1720g</span> — five 344g balls, called "340g" in the book. At 0% buffer with 5 × 340g you get the book's exact numbers above; quantity, ball size, and buffer scale from that batch.`;
 
     const levainWaitHours = 6 * Math.pow(2, (74 - temp) / 12);
     const levainWaitMins = Math.round(levainWaitHours * 60);
@@ -422,7 +431,7 @@ function update() {
     document.getElementById('bulkProse').innerHTML = `This dough needs <span class="highlight">one or two folds</span>. Make the first fold <span class="highlight">30 to 60 minutes</span> after mixing: grab the underside of the dough, stretch gently upward without tearing, and fold over the top; rotate and repeat around the tub. After the final fold, lightly coat the dough and the tub with olive oil to prevent sticking.`;
     document.getElementById('timingNote').innerHTML = `Calculator estimate: <span class="highlight">${Math.floor(bulkHours)}h ${Math.round((bulkHours % 1) * 60)}m</span> at ${temp}°F.<br><strong>The book's cues rule:</strong> bulk is done when the dough is <span class="highlight">2 to 2½ times its original volume</span> — about <span class="highlight">12 to 14 hours after mixing</span>. Judge the dough, not the clock.`;
 
-    document.getElementById('ballProse').innerHTML = `Lightly flour a work surface about 2 feet wide. With floured hands, gently ease the dough out of the tub. Dust the top with flour and cut into <span class="highlight">${qty}</span> equal pieces of about <span class="highlight">${size}g</span> each${size > 300 ? '' : ' (book note: use ~200g pieces for any dough destined for thick-crust iron-skillet pizza or focaccia)'}. Shape each piece into a <span class="highlight">medium-tight round</span>, working gently and being careful not to degas the dough. Place the balls on a lightly floured or oiled baking sheet with space between them, cover, and <span class="highlight">refrigerate at least 6 hours</span> before baking. Tightly covered, leftover dough keeps 2 or 3 days in the fridge — the book says you'll likely prefer the next-day dough as flavors develop.`;
+    document.getElementById('ballProse').innerHTML = `Lightly flour a work surface about 2 feet wide. With floured hands, gently ease the dough out of the tub. Dust the top with flour and cut into <span class="highlight">${qty}</span> equal pieces of about <span class="highlight">${perBall}g</span> each${size > 300 ? '' : ' (book note: use ~200g pieces for any dough destined for thick-crust iron-skillet pizza or focaccia)'}. Shape each piece into a <span class="highlight">medium-tight round</span>, working gently and being careful not to degas the dough. Place the balls on a lightly floured or oiled baking sheet with space between them, cover, and <span class="highlight">refrigerate at least 6 hours</span> before baking. Tightly covered, leftover dough keeps 2 or 3 days in the fridge — the book says you'll likely prefer the next-day dough as flavors develop.`;
     document.getElementById('scheduleNote').innerHTML = `<strong>Book's sample schedule:</strong> feed the levain in the morning, mix the dough at 7 p.m., shape into dough balls at 7 a.m. the next morning, and make pizza after 1 p.m. — or anytime over the next 2 days.`;
 }
 
